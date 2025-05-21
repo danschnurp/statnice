@@ -1,4 +1,557 @@
+# 1. Základní v čase spojité signály a jejich vlastnosti, vzorkování, kvantizace, číselné řady a jejich vlastnosti, základní operace.
+## 1.1. ANALOGOVÉ (SPOJITÉ) SIGNÁLY
 
+### Základní charakteristika spojitých signálů
+- **Definice**: Spojité signály jsou spojitou funkcí času popř. frekvence
+- **Popis**: Matematický výraz, graficky nebo tabulkou hodnot
+- **Poznámka**: Reálné signály se obtížně popisují, často se vytváří aproximace nebo modely
+
+### Klasifikace spojitých signálů
+- **Dle časové omezenosti**:
+  - Konečné - časově omezené
+  - Nekonečné:
+    - Levostranné: y(t)=0 pro t>a
+    - Pravostranné: y(t)=0 pro t<a
+    - Kauzální: y(t)=0 pro t<0
+    - Nekauzální
+- **Dle periodicity**:
+  - Periodické: opakují se po určitém čase (periodě) - x(t) = x(t+nTp)
+  - Neperiodické: jednostranné nebo časově omezené signály nemohou být periodické
+
+### Důležité signály a jejich vlastnosti
+
+#### Sinusoida
+- **Rovnice**: y(t) = A·sin(Ωt+φ)
+  - A - amplituda
+  - Ω - úhlová frekvence [rad/sec]
+  - φ - fáze [rad]
+- **Vztahy**:
+  - F = Ω/(2π) - frekvence [Hz]
+  - T = 1/F = 2π/Ω - perioda [s]
+  - φ = 2πFt₀ = Ωt₀ - kde t₀ je časový posun
+- **Vlastnosti**:
+  - Periodická s periodou T=1/F
+  - Spojité sinusoidy s různou frekvencí jsou vždy různé
+  - S rostoucí frekvencí roste počet oscilací v daném časovém intervalu
+  - Sinusoida a kosinus jsou stejné signály, posunuté o 90°
+  - Odezva lineárních systémů na harmonický vstup je vždy harmonická se stejnou frekvencí
+
+#### Komplexní exponenciála
+- **Vztah se sinusoidou**: x₍ₐ₎(t) = Ae^(jΩt+φ) = Ae^jφe^jΩt
+- **Eulerovy vztahy**:
+  - e^jΩt = cos(Ωt) + j·sin(Ωt)
+  - cos(Ωt) = (e^jΩt + e^-jΩt)/2
+  - sin(Ωt) = (e^jΩt - e^-jΩt)/(2j)
+
+#### Jednotkový skok
+- **Definice**:
+  - u(t) = 0 pro t<0
+  - u(t) = 1 pro t>0
+  - Pro t=0 není definován (Heavisideův skok definuje u(0)=0.5)
+
+#### Lineární funkce (ramp)
+- **Definice**: r(t) = t·u(t) = 0 pro t<0; t pro t≥0
+
+#### Diracův (jednotkový) impuls δ(t)
+- **Definice**: Limitní případ obdélníkové funkce - vysoká, úzká špička s konečnou plochou (=1)
+- **Vlastnosti**:
+  - ∫δ(t)dt = 1
+  - δ(t-t₀) - impuls posunutý do bodu t₀
+  - Filtrační vlastnost: ∫f(t)·δ(t-t₀)dt = f(t₀)
+  - f(t)·δ(t-t₀) = f(t₀)·δ(t-t₀)
+  - f(t)*δ(t) = f(t) - konvoluce s impulsem dává původní funkci
+  - δ⁽ⁿ⁾(t)*f(t) = f⁽ⁿ⁾(t) - n-tá derivace impulsu dává n-tou derivaci funkce
+
+#### Funkce sinc
+- **Definice**: sinc(t) = sin(πt)/(πt)
+- **Vlastnosti**:
+  - Maximum = 1 pro t=0
+  - Prochází nulou pro t = ±1, ±2, ±3, ...
+  - Tlumená oscilace
+
+### Kombinace sinusoid
+- **Periodicita součtu**: Součet sinusoid x₁(t) + x₂(t) + ... + xₙ(t) je periodický pokud:
+  - Společná perioda T = NSN(T₁,T₂,...,Tₙ) kde NSN je nejmenší společný násobek
+  - Základní frekvence f₀ = NSD(f₁,f₂,...,fₙ) kde NSD je největší společný dělitel
+
+## 1.2. VZORKOVÁNÍ A KVANTIZACE
+
+### Vzorkování (sampling)
+- **Definice**: Proces, kterým je spojitý signál x(t) transformován na posloupnost diskrétních vzorků x(nTs)
+- **Parametry**:
+  - Ts - perioda vzorkování
+  - fs = 1/Ts - vzorkovací frekvence
+
+#### Ideální vzorkování
+- **Matematický popis**: xᷤ(t) = x(t)·i(t) = x(t)·∑δ(t-nTs) = ∑x(nTs)·δ(t-nTs)
+- **Vlastnosti**: Vzorkovaný signál je vážený součet impulsů, kde váha je hodnota analogového signálu
+
+####  Vzorkovací (Shannonova) věta
+- **Formulace**: Pokud je signál x(t) spojitý v čase a obsahuje pouze složky s frekvencí menšími než fmax, pak může být rekonstruován z posloupnosti diskrétních vzorků, pokud fs > 2·fmax
+- **Nyquistova frekvence**: fN = fmax - kritická vzorkovací frekvence
+- **Nyquistův interval**: [-fs/2, fs/2] - základní frekvenční pásmo
+
+#### Aliasing
+- **Definice**: Jev, ke kterému dochází, pokud je signál vzorkován frekvencí menší než Nyquistova
+- **Důsledek**: V rekonstruovaném signálu se místo původní frekvence objeví falešná (alias) frekvence
+- **Vztah**: falias = f₀ - M·fs, kde M je celé číslo transformující falias do základního pásma (-0.5fs < falias < 0.5fs)
+- **Řešení**: Použití anti-aliasing filtru (analogová dolní propust) před A/D převodníkem
+
+#### Vzorkování frekvenčně omezeného signálu
+- **Nyquistova věta**: fs ≥ 2·fH (fH je nejvyšší frekvence v signálu)
+- **Pásmové signály**: Pro signál v pásmu B=fH-fL, kde fL>0, lze využít pásové vzorkování
+- **Minimální vzorkovací frekvence**: fs ≥ 2·fH/N, kde N=int(fH/B) a 2fL < fs/k < 2fH pro k=1,2,...,N
+
+#### Druhy vzorkování
+- **Přirozené vzorkování**: Průchod signálu přes periodicky spínaný vypínač
+- **Vzorkování s pamětí (Zero-order hold)**: Držení hodnoty vzorku do příchodu dalšího (používané v praxi)
+
+### A/D převodníky
+- **Typy**:
+  - **Paralelní (flash)**: Všechny bity najednou, rychlý ale drahý
+  - **S postupnou aproximací**: Postupné určování bitů od MSB k LSB
+  - **Sigma-delta**: Vysoké rozlišení za nízkou cenu, složitý software
+
+### Kvantizace
+- **Definice**: Proces, při kterém je vzorkovaný signál s "nekonečnou" přesností konvertován na signál s konečnou přesností
+- **Parametry**:
+  - L = 2^m - počet kvantizačních úrovní (m je počet bitů)
+  - Δ = (xmax-xmin)/L - velikost kvantizačního kroku (rozlišení převodníku)
+  - Index i = round((x-xmin)/Δ)
+  - Kvantizační úroveň: xq = xmin + i·Δ, kde i ∈ {0,1,...,L-1}
+
+#### Typy kvantizátorů
+- **Unipolární**: Konvertuje hodnoty z intervalu <0, xmax>
+- **Bipolární**: Konvertuje hodnoty z intervalu <-x₁, x₂>
+
+#### Kvantizační chyba
+- **SNR (Signal-to-Noise Ratio)**: Poměr výkonu signálu k výkonu šumu vzniklého kvantizací
+- **Výpočet**: SNRdB = 10·log10(E(x²)/E(eq²)) [dB]
+- **Pro sinusoidu s amplitudou A kvantovanou do m bitů**: SNRdB = 1.76 + 6.02·m [dB]
+
+### Rekonstrukce signálu (D/A převod)
+- **Princip**: Doplnění chybějící části signálu (interpolace mezi vzorky)
+
+#### Ideální rekonstrukce
+- **Interpolační funkce**: sinc(t/Ts) = sin(πt/Ts)/(πt/Ts)
+- **Vlastnosti**: Analogový signál je vytvořen jako vážený součet posunutých sinc funkcí
+- **Omezení**: V praxi nepoužitelná - funkce sinc není kauzální
+
+#### Praktické interpolační funkce
+- **Schodovitá (staircase)**: Hodnota je rovna předchozí vzorkované hodnotě (nejrychlejší)
+- **Lineární**: Hodnoty mezi vzorky jsou určeny lineární aproximací
+- **Kosinová**: Lepší aproximace než lineární
+
+#### D/A převodníky
+- **Přímé**: Vstupní datové slovo přímo převedeno na výstupní napětí (proud)
+  - S váhovou strukturou odporové sítě
+  - S příčkovou strukturou
+- **Nepřímé**: Převod rozdělen na dvě části
+  - S pulzně šířkovou modulací (PWM)
+  - S modulací hustotou pulzů (PDM)
+
+## 1.3. DISKRÉTNÍ SIGNÁLY A ČÍSELNÉ ŘADY
+
+### Charakteristika diskrétních signálů
+- **Definice**: Funkce nezávislé proměnné, signál není definován mezi vzorky
+- **Popis**: Funkce, tabulka hodnot, posloupnost, konečná nebo nekonečná posloupnost
+
+### Charakteristiky diskrétního signálu
+- **Diskrétní součet**: SD[n] = ∑x[n]
+- **Absolutní součet**: SA[n] = ∑|x[n]|
+- **Kumulativní součet**: SC[n] = ∑x[k] pro k=0 až n
+- **Energie**: E = ∑|x[n]|² pro neperiodické signály
+- **Průměrná hodnota**: xav = (1/N)·∑x[m] pro periodické signály
+- **Průměrný výkon**: P = (1/N)·∑|x[m]|² pro periodické signály
+
+### Klasifikace diskrétních signálů
+- **Dle časové omezenosti**: Levostranné, pravostranné, kauzální, antikauzální
+- **Dle periodicity**: Periodické x[n] = x[n+kN], kde N je perioda
+
+### Základní diskrétní signály
+
+#### Jednotkový impuls
+- **Definice**: δ[n] = 1 pro n=0, δ[n] = 0 pro n≠0
+- **Filtrační vlastnost**: ∑x[k]·δ[n-k] = x[n]
+- **Reprezentace signálu**: x[n] = ∑x[k]·δ[n-k]
+
+#### Jednotkový skok
+- **Definice**: u[n] = 1 pro n≥0, u[n] = 0 pro n<0
+- **Vztah s impulsem**: u[n] = ∑δ[n-k] pro k=0 až ∞
+
+#### Lineární funkce (ramp)
+- **Definice**: r[n] = n·u[n] = n pro n≥0, r[n] = 0 pro n<0
+- **Vztah s impulsem**: r[n] = ∑k·δ[n-k] pro k=0 až ∞
+
+#### Diskrétní pulzní signály
+- **Obdélníkový pulz**: rect(n/N) = 1 pro |n|≤N/2, rect(n/N) = 0 jinak
+- **Trojúhelníkový pulz**: tri(n/N) = 1-|n|/N pro |n|≤N, tri(n/N) = 0 jinak
+- **Diskrétní funkce sinc**: sinc(n/N) = sin(πn/N)/(πn/N), sinc(0) = 1
+
+#### Diskrétní exponenciála
+- **Definice**: x[n] = αⁿ·u[n]
+- **Vlastnosti**: 
+  - Pro reálné α: roste (α>0) nebo klesá (α<0)
+  - Pro komplexní α = re^jθ: x[n] = rⁿ[cos(nθ) + j·sin(nθ)]·u[n]
+
+#### Diskrétní sinusoida
+- **Definice**: x[n] = cos(2πFn) = cos(Ωn)
+  - F - normalizovaná frekvence [cykly/vzorek], F = f/fs
+  - Ω - číslicová úhlová frekvence [rad/vzorek], Ω = 2πF
+- **Vlastnosti**:
+  - Periodická pouze když F je racionální zlomek k/N
+  - Spektrum je periodické - nelze rozlišit frekvence F₀ a F₀+m
+  - Centrální perioda (základní rozsah): -0.5 ≤ F ≤ 0.5
+
+## 1.4 Základní operace s diskrétními signály
+
+#### Posun signálu
+- **Definice**: y[n] = x[n-k]
+  - k>0: zpoždění signálu o k vzorků (posun doprava)
+  - k<0: předsunutí signálu o |k| vzorků (posun doleva)
+
+#### Otočení signálu
+- **Definice**: y[n] = x[-n] - časově otočená verze x[n] kolem počátku
+
+#### Decimace signálu
+- **Definice**: y[n] = x[Nn] - každý N-tý vzorek původního signálu
+- **Vlastnost**: Výsledný signál je N-krát kratší
+
+#### Interpolace signálu
+- **Definice**: y[n] = x[n/N] - prodloužení signálu přidáním vzorků
+- **Typy**:
+  - "Zero interpolation" (up-sampling): y[n] = x[n/N] pro n dělitelné N, jinak y[n] = 0
+  - "Step interpolation": Přidané vzorky mají hodnotu předchozího vzorku
+  - "Linear interpolation": Přidané vzorky vytváří lineární funkci s okolními vzorky
+
+#### Neceločíselné zpoždění
+- **Implementace**: Pomocí decimace a interpolace
+- **Vzorec**: y[n] = x[(n-M)/N]
+
+#### Symetrie signálu
+- **Symetrie (sudá)**: x[n] = x[-n]
+- **Antisymetrie (lichá)**: x[n] = -x[-n]
+- **Rozklad signálu**: x[n] = xe[n] + xo[n]
+  - xe[n] = 0.5·(x[n] + x[-n]) - sudá část
+  - xo[n] = 0.5·(x[n] - x[-n]) - lichá část
+
+
+
+-----------------------------------------------------------------------------------------------------
+
+
+# 2. Zpracování signálů v časové oblasti, LTI systémy, popis, impulzní odezva, konvoluce, korelace, autokorelační funkce
+
+## Diskrétní systémy
+
+**Základní definice:**
+- Zpracovává časově diskrétní vstupní signál x[n] → výstupní signál y[n]
+- Kategorie: lineární/nelineární, časově invariantní/variantní, kauzální/nekauzální, statický/dynamický
+
+**Linearita:**
+- Systém splňuje: S{A·x₁[n] + B·x₂[n]} = A·y₁[n] + B·y₂[n]
+- Princip superpozice platí
+
+**Časová invariance:**
+- Posunutý vstup → posunutý výstup: x[n-m] → y[n-m]
+- Odezva závisí pouze na tvaru vstupu, ne na čase přivedení
+
+## LTI (Linear Time-Invariant) systémy
+
+**Charakteristika:**
+- Splňují linearitu + časovou invarianci
+- Nejdůležitější třída systémů pro zpracování signálů
+- Lze popsat: diferenční rovnicí, impulzní odezvou, přenosovou funkcí
+
+**Test LTI systému:**
+1. Diferenční rovnice má konstantní koeficienty, bez konstantních termů
+2. Žádné součiny vstupů/výstupů
+3. Koeficienty nejsou funkcí n
+
+**Příklady:**
+- LTI: y[n] - 0.6y[n-1] = 4x[n]
+- Ne-LTI: y[n] - 2ny[n-1] = x[n] (časově variantní)
+
+## Popis LTI systémů
+
+### 1. Diferenční rovnice
+**Obecný tvar (ARMA filtr):**
+```
+y[n] + A₁y[n-1] + ... + Aₙy[n-N] = B₀x[n] + B₁x[n-1] + ... + Bₘx[n-M]
+```
+
+**Typy:**
+- FIR (MA): pouze vstupní termy → y[n] = B₀x[n] + B₁x[n-1] + ... + Bₘx[n-M]
+- IIR (AR): zpětná vazba → y[n] + A₁y[n-1] + ... + Aₙy[n-N] = B₀x[n]
+
+### 2. Impulzní odezva h[n]
+- Odezva na jednotkový impuls δ[n]
+- Pro FIR: h[n] = {B₀, B₁, ..., Bₘ}
+- Pro IIR: řešení homogenní rovnice s h[0]=1
+
+### 3. Přenosová funkce H(z)
+```
+H(z) = Y(z)/X(z) = (B₀ + B₁z⁻¹ + ... + Bₘz⁻ᴹ)/(1 + A₁z⁻¹ + ... + Aₙz⁻ᴺ)
+```
+
+## Impulzní odezva
+
+**Výpočet pro FIR filtr:**
+- Přímo z koeficientů: h[n] = {B₀, B₁, ..., Bₘ}
+- Délka M+1 vzorků
+
+**Výpočet pro IIR filtr:**
+1. Řešit h[n] + A₁h[n-1] + ... + Aₙh[n-N] = δ[n]
+2. Počáteční podmínka h[0]=1, ostatní h[-k]=0
+3. Rekurzivní výpočet
+
+**Vlastnosti:**
+- Kauzální systém: h[n]=0 pro n<0
+- Stabilní systém: Σ|h[n]| < ∞
+
+## Konvoluce
+
+**Definice:**
+```
+y[n] = x[n] * h[n] = Σ x[k]h[n-k] = Σ h[k]x[n-k]
+```
+
+**Vlastnosti:**
+- Komutativní: x[n] * h[n] = h[n] * x[n]
+- Asociativní: (x[n] * h[n]) * g[n] = x[n] * (h[n] * g[n])
+- Distributivní: x[n] * (h[n] + g[n]) = x[n] * h[n] + x[n] * g[n]
+
+**Metody výpočtu:**
+
+1. **Sčítání po sloupcích:**
+   - Zapsat x[n] pod h[n]
+   - Násobit každý vzorek x[n] celým h[n]
+   - Sečíst sloupce
+
+2. **Sliding-strip:**
+   - Překlopit x[n] → x[-n]
+   - Posunout a násobit protilehlé vzorky
+   - Sčítat součiny
+
+3. **Násobení polynomů:**
+   - x[z] · h[z] = y[z]
+   - Koeficienty výsledku = konvoluce
+
+**Příklad použití:**
+- Filtrace signálů (FIR/IIR filtry)
+- Rozmazání obrazu (2D konvoluce)
+- Reverb v audio zpracování
+
+## Korelace
+
+**Vzájemná korelace:**
+```
+rₓₕ[n] = x[n] ⋆ h[n] = Σ x[k]h[k-n] = Σ x[k+n]h[k]
+```
+
+**Vztah ke konvoluci:**
+```
+rₓₕ[n] = x[n] * h[-n]
+```
+
+**Autokorelace:**
+```
+rₓₓ[n] = x[n] ⋆ x[n] = Σ x[k]x[k-n]
+```
+
+**Vlastnosti autokorelace:**
+- Sudá funkce: rₓₓ[n] = rₓₓ[-n]
+- Maximum v n=0: rₓₓ[n] ≤ rₓₓ[0]
+- rₓₓ[0] = energie signálu
+
+## Aplikace korelace
+
+**1. Detekce signálu v šumu:**
+- Radar: vysílá x[n], přijímá s[n] = αx[n-D] + šum
+- Korelací rₛₓ[n] najdeme zpoždění D → vzdálenost
+
+**2. Měření podobnosti:**
+- Rozpoznávání vzorů
+- Synchronizace v komunikacích
+- Biometrická identifikace
+
+**3. Analýza periodicity:**
+- Autokorelace periodického signálu má vrcholy v násobcích periody
+- Detekce skrytých period v zašuměných datech
+
+**4. Wiener-Khinchinova věta:**
+- Autokorelace ↔ výkonová spektrální hustota (Fourierův pár)
+
+## Praktické implementace
+
+**Blokové schéma systému:**
+- Přímá forma I: oddělené vstupní/výstupní zpožďovací linky
+- Přímá forma II: společná zpožďovací linka (efektivnější)
+- Kaskádní/paralelní realizace
+
+**Výpočetní složitost:**
+- Přímá konvoluce: O(N·M)
+- FFT konvoluce: O(N log N) pro dlouhé signály
+- Překryvná metoda (overlap-add/save) pro real-time
+
+**Příklady použití v praxi:**
+- Audio efekty (reverb, echo)
+- Obrazové filtry (rozostření, detekce hran)
+- Komunikační systémy (equalizace kanálu)
+- Biomedicínské signály (EKG/EEG filtrace)
+- Seismologie (detekce zemětřesení)
+
+# 3. Zpracování signálů ve frekvenční oblasti
+
+## Základní princip transformace
+- **Transformace** → zpracování v transformované oblasti → **inverzní transformace**
+- Převod signálu z časové do frekvenční oblasti umožňuje efektivnější zpracování
+- x(n) → X(k) → zpracování → X'(k) → x'(n)
+
+## Typy Fourierových transformací
+
+| Časová oblast                       | Frekvenční oblast                   | Transformace |
+|-------------------------------------|-------------------------------------|--------------|
+| Aperiodický spojitý x(t)            | Aperiodický spojitý X(f)            | FT           |
+| Periodický x(t), perioda T          | Diskrétní X[k], vzorkování 1/T      | FS           |
+| Diskrétní x[n], vzorkování ts       | Periodický X(f), perioda 1/ts       | DTFT         |
+| Diskrétní periodický x[n], N vzorků | Diskrétní periodický X[k], N vzorků | DFT          |
+
+## Diskrétní Fourierova transformace (DFT)
+
+### Definice
+**Přímá transformace:**
+$$X_{DFT}[k] = \sum_{n=0}^{N-1} x[n]e^{-j2\pi nk/N}, \quad k = 0,1,...,N-1$$
+
+**Inverzní transformace:**
+$$x[n] = \frac{1}{N}\sum_{k=0}^{N-1} X_{DFT}[k]e^{j2\pi nk/N}, \quad n = 0,1,...,N-1$$
+
+### Polární tvar DFT
+- **Magnituda:** $|X[k]| = \sqrt{X_{real}^2[k] + X_{imag}^2[k]}$
+- **Fáze:** $\phi[k] = \arctan\left(\frac{X_{imag}[k]}{X_{real}[k]}\right)$
+- **Výkonové spektrum:** $X_{PS}[k] = |X[k]|^2$
+
+### Klíčové vlastnosti DFT
+
+1. **Linearita:** $k_1x_1[n] + k_2x_2[n] \leftrightarrow k_1X_1[k] + k_2X_2[k]$
+
+2. **Periodičnost:** X[k] i x[n] jsou periodické s periodou N
+
+3. **Časový posun:** $x[n-n_0] \leftrightarrow e^{-j2\pi kn_0/N}X[k]$
+   - Posun v čase způsobí změnu fáze
+
+4. **Frekvenční posun:** $e^{j2\pi k_0n/N}x[n] \leftrightarrow X[k-k_0]$
+
+5. **Periodická konvoluce:** $x_1[n] * x_2[n] \leftrightarrow X_1[k] \cdot X_2[k]$
+
+6. **Symetrie pro reálný signál:**
+   - $X[k] = X^*[N-k]$ (komplexně sdružená symetrie)
+   - $|X[k]| = |X[N-k]|$ (sudá magnituda)
+   - $\phi[k] = -\phi[N-k]$ (lichá fáze)
+
+7. **Parsevalova věta:** $\sum_{n=0}^{N-1}|x[n]|^2 = \frac{1}{N}\sum_{k=0}^{N-1}|X[k]|^2$
+
+### Důležité DFT páry
+- **Impulz:** $\{1,0,0,...,0\} \leftrightarrow \{1,1,1,...,1\}$
+- **Konstanta:** $\{1,1,1,...,1\} \leftrightarrow \{N,0,0,...,0\}$
+- **Sinusoida:** $\cos(2\pi k_0n/N) \leftrightarrow 0.5N[\delta[k-k_0] + \delta[k-(N-k_0)]]$
+
+## Praktické aspekty DFT
+
+### Rozlišení DFT
+- **Frekvenční rozlišení:** $\Delta f = f_s/N$ 
+- Zvětšení N → lepší frekvenční rozlišení
+- Zero-padding zvětšuje hustotu vzorků, ale ne skutečné rozlišení!
+
+### Prosakování spektra (Spectral Leakage)
+- Vzniká při neceločíselném počtu period signálu v okně
+- **Řešení:** Použití vyhlazovacích oken
+
+### Vyhlazovací okna
+| Okno      | Hlavní lalok  | Postranní laloky     | Použití                    |
+|-----------|---------------|----------------------|----------------------------|
+| Pravoúhlé | Úzký (2/N)    | Vysoké (-13 dB)      | Přesné frekvence           |
+| Bartlett  | Střední (4/N) | Střední (-27 dB)     | Kompromis                  |
+| Hann      | Střední (4/N) | Nízké (-32 dB)       | Obecné použití             |
+| Hamming   | Střední (4/N) | Velmi nízké (-43 dB) | Potlačení prosakování      |
+| Blackman  | Široký (6/N)  | Nejnižší (-58 dB)    | Vysoké dynamické rozlišení |
+
+### FFT (Fast Fourier Transform)
+- Efektivní algoritmus pro výpočet DFT
+- Složitost: O(N log N) místo O(N²)
+- Podmínka: N = 2^m
+- **Decimace v čase (DIT)** nebo **decimace ve frekvenci (DIF)**
+
+## Použití DFT
+
+### 1. Spektrální analýza signálů
+- **Periodogram:** $P[k] = \frac{1}{N}|X_{DFT}[k]|^2$
+- Určení frekvenčního obsahu signálu
+- Detekce periodických složek
+
+### 2. Filtrace ve frekvenční oblasti
+- Násobení spektra filtrem: $Y[k] = H[k] \cdot X[k]$
+- Efektivní pro dlouhé filtry
+- Realizace ideálních filtrů (dolní/horní propust)
+
+### 3. Korelace a konvoluce
+- Rychlý výpočet pomocí FFT
+- $x[n] * h[n] \leftrightarrow X[k] \cdot H[k]$
+
+### 4. Zpracování digitalizovaných snímků
+- **2D DFT** pro obrazy: $X[k,l] = \sum_m\sum_n x[m,n]e^{-j2\pi(km/M + ln/N)}$
+- Aplikace:
+  - Komprese obrazu (JPEG)
+  - Filtrace šumu
+  - Detekce hran
+  - Registrace obrazů
+
+## Časově-frekvenční analýza
+
+### STFT (Short-Time Fourier Transform)
+- Signál rozdělen na překrývající se bloky
+- Každý blok násoben oknem a transformován pomocí FFT
+- **Výstup:** Spektrogram - 2D reprezentace (čas × frekvence)
+- **Použití:** Analýza řeči, hudby, nestacionárních signálů
+
+### Waveletová transformace
+- Proměnná časově-frekvenční rozlišení
+- Krátké wavelety pro vysoké frekvence, dlouhé pro nízké
+- **CWT** (spojitá) vs **DWT** (diskrétní)
+- **Použití:** Detekce singularit, komprese, odstranění šumu
+
+### Matching Pursuit
+- Adaptivní dekompozice na Gaborovy atomy
+- Iterativní hledání nejlepší shody ve slovníku funkcí
+- **Použití:** Analýza EEG/ERP, komprese signálů
+
+## Příklady aplikací
+
+1. **Audio zpracování**
+   - Ekvalizace, efekty
+   - Rozpoznávání řeči
+   - Komprese (MP3)
+
+2. **Biomedicínské signály**
+   - EEG/EKG analýza
+   - Detekce arytmií
+   - fMRI zpracování
+
+3. **Komunikace**
+   - OFDM modulace
+   - Spektrální analýza
+   - Adaptivní filtrace
+
+4. **Obrazové zpracování**
+   - Komprese JPEG
+   - Restaurace obrazu
+   - Rozpoznávání vzorů
+
+## Praktické tipy
+- Vždy zvažte použití okna pro potlačení prosakování
+- Pro real-time aplikace preferujte FFT před DFT
+- Pamatujte na Nyquistovu frekvenci: $f_{max} = f_s/2$
+- Pro nestacionární signály použijte STFT nebo wavelety
 
 # 4. Paralelismus na úrovni instrukcí, predikce skoků, paměťová závislost, falešné sdílení a transakční paměť (Intel TSX) – jejich princip a význam pro urychlení sekvenčních a konkurenčních částí algoritmů.
 
@@ -548,7 +1101,6 @@ Výběr konkrétního přístupu závisí na charakteristikách aplikace, hardwa
 - Metody měření výkonu vektorizovaného kódu
 - Typické výkonnostní rozdíly mezi skalárním a vektorizovaným kódem
 
-
 # 6.2 Verifikace, synchronizace a distribuce procesů v paralelních a distribuovaných systémech
 
 ## Temporální logika a formální verifikace kódu
@@ -614,5 +1166,9 @@ Výběr konkrétního přístupu závisí na charakteristikách aplikace, hardwa
 
 
 -------------------------------------------------------------------------------
+
+
+
+
 
 
