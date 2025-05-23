@@ -1162,13 +1162,638 @@ Výběr konkrétního přístupu závisí na charakteristikách aplikace, hardwa
   - Testování prototypů s reálnými zařízeními
   - HW-SW kosimulace
 
+-------------------------------------------------------------------------------
 
+# 7. Úpravy digitalizovaného obrazu s využitím histogramu, detekce hran, filtrace.
+
+## 7.1 Úpravy digitalizovaného obrazu s využitím histogramu
+
+### 7.1.1 Základní operace s obrazovými daty
+
+Při zpracování digitálního obrazu rozlišujeme dva základní typy operací:
+
+**a) Bodové operace**
+- Hodnota výstupního pixelu závisí pouze na hodnotě vstupního pixelu na stejné pozici
+- Obecný zápis: `c(i,j) = f[a(i,j), k]`
+- Příklady bodových operací:
+  - **Sčítání snímků** - používá se pro filtraci šumu průměrováním
+  - **Odčítání snímků** - detekce změn mezi snímky
+  - **Násobení snímků** - jasové korekce
+
+**b) Transformace jasové stupnice**
+- Mění rozložení jasových hodnot v obraze
+- Základní typy:
+  - Identická transformace
+  - Inverze
+  - Prahování
+  - Lineární transformace
+
+### 7.1.2 Histogram obrazu
+
+**Histogram** je grafické znázornění četnosti výskytu jednotlivých jasových úrovní v obraze.
+
+Pro obraz s jasovými úrovněmi 0 až L-1:
+- H(k) = počet pixelů s jasem k
+- Normalizovaný histogram: p(k) = H(k) / (M×N)
+
+### 7.1.3 Transformace jasové stupnice pomocí histogramu
+
+**a) Roztažení histogramu (Stretching)**
+- Zvýšení kontrastu obrazu využitím celého rozsahu jasů
+- Transformační funkce: `g = [(gmax - gmin)/(pmax - pmin)] × (p - pmin) + gmin`
+- Použití: obrazy s malým kontrastem
+
+**b) Ekvalizace histogramu**
+- Cíl: dosáhnout rovnoměrného rozložení jasových úrovní
+- Vytváří obraz s maximálním kontrastem
+- Algoritmus:
+  1. Výpočet kumulativního histogramu
+  2. Normalizace na rozsah výstupních jasů
+  3. Mapování původních jasů na nové hodnoty
+
+**c) Specifikace histogramu**
+- Transformace histogramu do požadovaného tvaru
+- Používá se když chceme dosáhnout konkrétního rozložení jasů
+
+## 7.3 Detekce hran
+
+### 7.3.1 Definice hrany
+
+**Hrana** je místo v obraze s rychlou změnou jasu. Rozlišujeme:
+- **Skoková hrana** - náhlá změna jasu
+- **Rampová hrana** - pozvolná změna jasu
+
+### 7.3.2 Metody detekce hran
+
+**a) Detekce hran v definovaném směru**
+- Využívá první diferenci v daném směru
+- Směry: 0° (horizontální), 45°, 90° (vertikální), 135°
+
+**b) Gradientní metody**
+
+Gradient obrazové funkce:
+```
+∇f(x,y) = [∂f/∂x, ∂f/∂y]
+```
+
+Velikost gradientu: `|∇f(x,y)| = √[(∂f/∂x)² + (∂f/∂y)²]`
+
+**Hlavní gradientní operátory:**
+
+1. **Robertsův operátor**
+   - Nejjednodušší, 2×2 maska
+   - Citlivý na šum
+
+2. **Prewittové operátor**
+   - 3×3 maska
+   - Robustnější vůči šumu
+
+3. **Sobelův operátor**
+   - 3×3 maska s váhováním
+   - Nejpoužívanější
+
+4. **Cannyho detektor**
+   - Vícekrokový algoritmus
+   - Optimální poměr detekce/šum
+
+**c) Laplaceův operátor**
+- Druhá derivace, detekuje hrany ve všech směrech
+- Velmi citlivý na šum
+- Často se kombinuje s vyhlazením (LoG - Laplacian of Gaussian)
+
+## 7.4 Filtrace obrazu
+
+### 7.4.1 Typy šumu v obraze
+
+1. **Gaussovský šum** - normální rozdělení
+2. **Impulsní šum** ("salt & pepper") - náhodné černé/bílé body
+3. **Rovnoměrný šum** - konstantní pravděpodobnost
+
+### 7.4.2 Lineární filtrace
+
+**FIR filtry (Finite Impulse Response)**
+- Konečná impulsní odezva
+- Výstup závisí pouze na vstupech
+- Stabilní, snadno implementovatelné
+
+**Základní typy lineárních filtrů:**
+
+1. **Vyhlazovací filtry**
+   - Průměrování
+   - Gaussovo vyhlazení
+   - Redukce šumu
+
+2. **Zostřovací filtry**
+   - Zvýraznění hran
+   - Laplacián
+   - Unsharp masking
+
+### 7.4.3 Nelineární filtrace
+
+1. **Mediánový filtr**
+   - Efektivní proti impulsnímu šumu
+   - Zachovává hrany
+
+2. **Morfologické filtry**
+   - Eroze, dilatace
+   - Otevření, uzavření
+   - Založené na strukturálním elementu
+
+### 7.4.4 Praktické aplikace
+
+**Odstranění šumu:**
+- Gaussovský šum → lineární vyhlazení
+- Impulsní šum → mediánový filtr
+- Kombinovaný šum → kaskáda filtrů
+
+**Zvýraznění obrazu:**
+- Zostření pomocí vysokofrekvenčních filtrů
+- Zvýraznění hran před segmentací
+- Předzpracování pro rozpoznávání
+
+**Příklady použití:**
+- Lékařské zobrazování (CT, MRI)
+- Satelitní snímky
+- Kontrola kvality ve výrobě
+- Biometrické systémy
 
 
 -------------------------------------------------------------------------------
 
 
+# 8. Matematická morfologie, dilatace, eroze, operace otevření a uzavření, užití pro odstranění šumu a zjednodušení obrazové scény.
 
+## 8.1. Základy matematické morfologie
+
+Matematická morfologie je metoda zpracování obrazu, která geometrizuje úlohy zpracování snímků. Vychází z tvarů objektů ve snímku a používá transformace, které tyto tvary zachovávají nebo respektují. Hlavní oblasti aplikace metod matematické morfologie zahrnují:
+
+a) **Předzpracování obrazu** - odstranění šumu, zjednodušení tvarů objektů, zaplavování zálivů, odstraňování zákmitů, vyrovnání hranice objektů, detekce geometrických útvarů.
+
+b) **Skeletizace a ztenčování objektů** - zjednodušení geometrické struktury objektů pro další zpracování, např. popisy objektů číselnými charakteristikami.
+
+### 8.1.1. Teoretické základy
+
+Teorie matematické morfologie je založena na vlastnostech bodových množin:
+- Snímek 2D (IMeukl) je reprezentován ve spojitém euklidovském prostoru E2 bodovou množinou
+- Body objektů jsou reprezentovány hodnotou "1"
+- Body pozadí jsou reprezentovány hodnotou "0"
+- Pro šedotónové snímky používáme E3 jako trojici souřadnic (x,y) a jasu f(x,y)
+
+Pro digitalizované 2D snímky (IM) nebo binarizované snímky (IMbin) pracujeme s bodovými množinami, kde:
+- Bod (i,j) objektu = 1
+- Bod (i,j) pozadí = 0 (bod doplňku objektu)
+
+Pro zápis bodové množiny A používáme množinu dvojic souřadnic (i,j) reprezentujících objekt v IMbin:
+- Body objektu: A
+- Body pozadí: A^C
+- Bod se souřadnicí (0,0) je označován jako počátek
+
+### 8.1.2. Morfologická transformace
+
+Nad bodovou množinou je definována morfologická transformace jako relace bodové množiny (IMbin ≈ A) a tzv. strukturního elementu [TEMPLATE], který je tvořen bodovou množinou B (obvykle menší než A).
+
+Transformaci můžeme obecně popsat vztahem:
+TM: A → ? B
+
+K transformaci TM(A) existuje také duální transformace TM*(A), pro kterou platí:
+TM*(A) = (TM(A^C))^C
+
+### 8.1.3. Strukturní element
+
+Strukturní element B je bodová množina, která má definovaný počátek elementu [ORIGIN]. Počátek strukturního elementu může také ležet mimo vlastní element B.
+
+Příklady strukturních elementů:
+- B1: 3×3 čtvercové okolí s počátkem uprostřed
+- B2: kříž s počátkem uprostřed
+- B3: horizontální linie s počátkem uprostřed
+- B4: vertikální linie s počátkem uprostřed
+- B5: horizontální linie tří bodů s počátkem vlevo
+- B6: horizontální linie dvou bodů s počátkem vlevo
+- B7: horizontální linie dvou bodů bez levého okolí
+- B8: komplikovanější tvar s počátkem v levém horním rohu
+
+Bod ve snímku IM1 ≈ A, který se nachází "pod" počátkem strukturního elementu B, se nazývá **okamžitý bod**, do kterého se pak výsledek morfologické transformace TM(A) přenáší ve výsledném snímku IM2.
+
+## 8.2. Základní morfologické transformace
+
+### 8.2.1. Dilatace
+
+Dilatace je morfologická transformace založená na tzv. Minkowského součtu [MINKOWSKY ADDITION], kdy se dvě bodové množiny A a B skládají pomocí vektorového součtu:
+
+(i,j) ⊕ (k,l) = (i+k, j+l)
+
+Formálně:
+TM(A): A ⊕ B = {x ∈ E2 : x = a + b; a ∈ A; b ∈ B}
+
+Nebo alternativně:
+A ⊕ B = ⋃(b∈B) (A)b ≈ sjednocení posunutých bodových množin
+
+Dilataci můžeme zjednodušeně interpretovat:
+- Pomocí strukturního elementu B "projíždíme" jednotlivé body vstupního snímku
+- Tam, kde počátek strukturního elementu B koresponduje s okamžitým bodem v IM1 s hodnotou 1, provedeme v dilatovaném snímku IM2 sjednocení strukturního elementu B a snímku IM2
+- Jinými slovy, provedeme "obtisk" strukturního elementu B do IM2 v místě okamžitého bodu
+
+Pro šedotónové snímky platí:
+TM(A): A ⊕ B = {x ∈ E3 : x = max{a, b}; pro ∀ a ∈ A; pro ∀ b ∈ B}
+
+V implementaci pro bod výstupního snímku gD(i,j):
+gD(i,j) = max{f(i-k, j-l); pro ∀ k,l, že b(k,l) ∈ B a f(i-k, j-l) ∈ IM}
+
+Při konvenci, že v binarizovaném snímku IM platí černá = "0" a bílá = "1", se pak jedná o dilataci bílé do černé.
+
+### 8.2.2. Eroze
+
+Eroze je morfologická transformace duální k dilataci. Je založena na principu Minkowského rozdílu [MINKOWSKI SUBTRACTION]. Jedná se o skládání dvou bodových množin pomocí vektorového rozdílu.
+
+Formálně:
+TM(A): A ⊖ B = {x ∈ E2 : x + b ∈ A; pro ∀ b ∈ B}
+
+Pro x ∈ X počítáme vektorový součet s prvky strukturního elementu b ∈ B a testujeme, zda bodová množina x + b ⊆ A. Jestliže platí, že x + b ⊆ A, pak x ∈ X je prvkem výsledné erodované množiny.
+
+Erozi můžeme zjednodušeně interpretovat:
+- Pomocí strukturního elementu B "projíždíme" jednotlivé body vstupního snímku
+- Pro okamžitý bod, kdy se celá bodová množina strukturního elementu B shoduje s jemu odpovídající bodovou podmnožinou bodové množiny v IM1, bude hodnota odpovídajícího okamžitého bodu ve výsledném snímku IM2 nastavena na "1"
+
+Pro šedotónové snímky platí:
+TM(A): A ⊖ B = {x ∈ E3 : x = min{a, b}; pro ∀ a ∈ A; pro ∀ b ∈ B}
+
+V implementaci pro bod výstupního snímku gE(i,j):
+gE(i,j) = min{f(i+k, j+l); pro ∀ k,l, že b(k,l) ∈ B a f(i+k, j+l) ∈ IM}
+
+Při konvenci, že v binarizovaném snímku IM platí černá = "0" a bílá = "1", se pak jedná o dilataci černé do bílé.
+
+## 8.3. Transformace otevření a uzavření
+
+Kombinace dvou duálních morfologických transformací dilatace a eroze se používá ke zjednodušení snímků - zmenšení počtu detailů, zaplavení malých děr na úrovni šumu, odstranění impulsního šumu, zaplavení úzkých zálivů, odstranění výstupků, zjednodušení čar vymezujících objekty.
+
+### 8.3.1. Otevření (Opening)
+
+Transformace otevření je definována jako dilatace po erozi:
+
+TM(A): A ○ B = (A ⊖ B) ⊕ B
+
+Transformace otevření:
+- Oddělí objekty, které jsou spojené úzkou šíjí
+- Odstraní zákmity/výčnělky na obvodu objektů
+- Eliminuje šum na úrovni osamocených obrazových bodů
+
+### 8.3.2. Uzavření (Closing)
+
+Transformace uzavření je definována jako eroze po dilataci:
+
+TM(A): A • B = (A ⊕ B) ⊖ B
+
+Transformace uzavření:
+- Spojí objekty, které jsou blízko sebe
+- Zaplaví malé díry (na úrovni šumu) a zálivy
+
+### 8.3.3. N-násobné otevření a uzavření
+
+Pro větší efekt můžeme použít n-násobné aplikace:
+
+OPENING(n)(A,B) = ((A ⊖ B)n ⊕ B)n
+- n-krát eroze následovaná n-krát dilatací
+
+CLOSING(n)(A,B) = ((A ⊕ B)n ⊖ B)n
+- n-krát dilatace následovaná n-krát erozí
+
+## 8.4. Transformace typu "HIT and MISS"
+
+Tato transformace (též nazývaná Serrova transformace nebo "TREF a MIŇ") se používá pro detekci jednoduchých tvarů v objektech, např. rohy, kouty, hranice nebo také pro ztenčování a skeletizaci.
+
+Základem je složený strukturní element:
+B = {B1,B2}, kde platí: B1 ∩ B2 = ∅
+
+Jedná se o dvojici disjunktních množin B1 a B2.
+
+Transformace je založená na erozi a platí:
+A ⊛ B = {a ∈ A : B1 ⊆ A and B2 ⊆ A^C}
+
+Tento zápis můžeme interpretovat tak, že má-li být okamžitý bod a z bodové množiny A bodem výsledné množiny (A ⊛ B), pak musí současně platit:
+- B1 je podmnožinou množiny A (≈ objekt v IM) ... "TREF"
+- B2 je podmnožinou doplňku A^C (≈ pozadí v IM) ... "MIŇ"
+
+Vyjádřeno pomocí eroze:
+A ⊛ B = (A ⊖ B1) ∩ (A^C ⊖ B2)
+
+## 8.5. Detekce hranice oblasti
+
+Transformace pro detekci hranice oblasti je založena na množinovém rozdílu původní bodové množiny A a erodovaného objektu (A ⊖ B).
+
+Obecně platí:
+BOUNDARY = A \ (A ⊖ BX)
+
+Kde BX je symetrický strukturní element, který může být dvojího typu:
+- B4: kříž (4-okolí)
+- B8: čtverec (8-okolí)
+
+Pro množinový rozdíl platí: X \ Y = X ∩ Y^C, pak lze vztah přepsat na:
+BOUNDARY = A ∩ (A ⊖ BX)^C
+
+Při použití strukturního elementu B4 je výsledkem hranice oblasti souvislá ve smyslu 8-okolí.
+Při použití strukturního elementu B8 je výsledkem hranice oblasti souvislá ve smyslu 4-okolí.
+
+## 8.6. Binární medián
+
+Transformaci typu binární medián můžeme definovat vztahem:
+gmedian(i,j) = MEDIAN{f(i+k, j+l); pro ∀ k,l, že b(k,l) ∈ B a f(i+k, j+l) ∈ IM}
+
+Tato transformace odstraňuje drobné výstupky na obvodu oblasti a zaplavuje malé prohlubně. Je podobná operaci otevření a uzavření, ale zachovává více detailů původního obrazu.
+
+## 8.7. Praktické využití matematické morfologie
+
+### 8.7.1. Odstranění šumu
+- Kombinace eroze a dilatace (otevření a uzavření) efektivně odstraňuje impulsní šum
+- Binární medián odstraňuje izolované pixely a malé shluky
+
+### 8.7.2. Zjednodušení obrazové scény
+- Otevření odstraňuje tenké výběžky a malé objekty
+- Uzavření vyplňuje malé díry a úzké zálivy
+- N-násobné aplikace umožňují progresivní zjednodušení scény
+
+### 8.7.3. Segmentace obrazu
+- Transformace "HIT and MISS" umožňuje detekci specifických tvarů
+- Detekce hranice je užitečná pro ohraničení objektů
+
+### 8.7.4. Skeletizace
+- Postupné ztenčování objektů až na "kostru" objektu
+- Zachovává topologické vlastnosti objektu při maximálním zjednodušení
+
+Matematická morfologie představuje mocný nástroj pro zpracování obrazu, který je vhodný zejména pro binární obrazy a může být rozšířen i na šedotónové obrazy. Tyto metody jsou výpočetně efektivní a mohou být implementovány jak softwarově, tak hardwarově.
+
+
+-------------------------------------------------------------------------------
+
+# 9. Ztenčování a skeletizace
+
+## 9.1. Základní pojmy a principy
+
+Ztenčování (skeletizace) je metoda vytváření čárových obrazů, která nachází významné uplatnění při řešení problémů spojených s rozpoznáváním a strukturální analýzou vizuální scény. Tyto metody jsou zvláště důležité v oblasti "fringe pattern analysis", což je analýza obrazů interferenčních pruhů vzniklých mechanickou či optickou interferencí.
+
+Při řešení úloh rozpoznávání obrazů ("pattern recognition") je důležitým aspektem problém redukce šířky čar nebo obecněji úkol skeletizace, tedy vytvoření čárového obrazu, který zachovává informaci o topologii a struktuře objektů v původním obraze.
+
+## 9.2. Skeletizace ve spojité oblasti
+
+Metoda skeletizace, vycházející z tzv. mediální osové transformace (Medial Axis Transformation), vytváří ve spojité oblasti jedinečný skelet pro daný objekt. Koncept mediální osové transformace byl představen H. Blumem v roce 1964.
+
+### 9.2.1. Intuitivní vysvětlení skeletu
+
+Pro pochopení pojmu skelet se často používá mnemotechnická pomůcka popisující vznik skeletu jako šíření ohně na louce. Představme si, že v jeden okamžik zapálíme po obvodu louku tvaru například obdélníku. Za předpokladu homogenního hoření budou místa, kde se ohně potkají a uhasnou, tvořit tzv. zhasínací křivku, která je skeletem objektu (louky).
+
+### 9.2.2. Matematická definice skeletu
+
+Formálně lze skelet definovat následovně:
+- Nechť S je plošný objekt a H je jeho hranice
+- Nechť bod P je bod ležící v S
+- Nejbližším sousedem bodu P na hranici H je bod M patřící do H takový, že v H neexistuje žádný jiný bod, jehož vzdálenost od P je menší než vzdálenost PM
+- Jestliže má bod P více než jednoho takového nejbližšího souseda, pak lze říci, že bod P je bodem skeletu
+- Sjednocení všech bodů skeletu nazýváme skelet
+
+Alternativně lze skelet definovat jako množinu středů maximálních kruhů vepsaných do objektu S. Maximální kruh vepsaný do S se dotýká hranice H ve dvou a více bodech.
+
+## 9.3. Vlastnosti skeletu
+
+Dobrý skelet by měl splňovat následující kritéria:
+
+1. **Topologie** - skeletizace, resp. transformace použitá pro určení skeletu, musí zachovávat rozmístění oblastí a děr v původním snímku. Jedná se o zachování relace souvislosti mezi oblastmi a děrami ve snímku (homotopický strom). Skeletizace tedy musí mít vlastnosti homotopické transformace.
+
+2. **Spojitost** - každé spojité oblasti ve snímku musí odpovídat pouze jeden spojitý skelet.
+
+3. **Stabilita** - skeletizace aplikovaná na spojitou oblast, která je sama skeletem, nesmí tuto oblast změnit.
+
+## 9.4. Skeletizace a ztenčování v diskrétní oblasti
+
+V diskrétní oblasti (digitální obrazy) závisí definice vzdálenosti na použité diskretizační mřížce a použité definici souvislosti. Zatímco ve spojitém prostoru R² používáme Euklidovskou vzdálenost, v diskrétním prostoru Z² můžeme použít různé metriky související s 4-okolím, 8-okolím apod.
+
+### 9.4.1. Problematika diskrétní skeletizace
+
+Při použití mediální osové transformace v diskrétním prostoru mohou nastat následující problémy:
+
+1. Vzniklé skelety nemusí mít tloušťku "1" (jeden pixel)
+2. Může dojít k porušení principu homotopické transformace (topologie)
+3. Může dojít k porušení principu spojitosti a stability
+
+Ilustrativní příklad ukazuje, že při objektu určitých rozměrů (např. 8 × 10 pixelů) může skelet definovaný pomocí mediální osové transformace mít v některých místech tloušťku 2 pixely, což není žádoucí.
+
+### 9.4.2. Řešení problémů diskrétní skeletizace
+
+Z důvodu výše uvedených problémů se v diskrétním prostoru Z² používají:
+- Aproximační algoritmy k mediální osové transformaci
+- Postupné ztenčování (thinning)
+
+Tyto přístupy se snaží zachovat topologické vlastnosti obrazu a zároveň vytvořit skelet s tloušťkou jednoho pixelu.
+
+## 9.5. Praktické aplikace skeletizace
+
+Skeletizace a ztenčování nacházejí praktické uplatnění v mnoha oblastech:
+
+1. **Rozpoznávání vzorů** - zjednodušení objektů pro následnou klasifikaci
+2. **Analýza písma a rukopisu** - extrakce základních tahů pro OCR systémy
+3. **Biometrická identifikace** - analýza otisků prstů, žilní kresby
+4. **Počítačové vidění** - reprezentace objektů pro následnou analýzu
+5. **Lékařské zobrazování** - analýza cévních struktur, nervových drah apod.
+
+Skeletizace představuje důležitý krok předzpracování obrazu, který umožňuje redukovat množství dat při zachování podstatných strukturálních informací o objektech v obraze.
+
+
+-------------------------------------------------------------------------------
+
+
+# 10. Segmentace obrazu
+
+## 10.1 Základní princip segmentace
+
+Segmentace obrazu představuje proces rozčlenění snímku (obrazu) na oblasti, které korespondují s objekty reálného světa. Alternativně lze segmentaci chápat jako rozčlenění obrazu na oblasti podle společných definovaných charakteristik, které mohou být i abstraktní vzhledem k reálnému světu. Takové oblasti se vyznačují uniformitou vzhledem k definované vlastnosti, jako je barva, jas, tvar, struktura, poloha těžiště apod.
+
+Předpokládáme, že určené oblasti jsou disjunktní, tedy:
+
+1. IM₁ = ⋃ᵢ₌₁ⁿ Sᵢ, kde Sₖ ∩ Sₗ = ∅ pro všechna k, l taková, že k ≠ l
+2. IM₂ = [⋃ᵢ₌₁ⁿ Sᵢ] ∪ B, kde Sₖ ∩ Sₗ = ∅ pro všechna k, l taková, že k ≠ l
+
+Existuje několik hlavních přístupů k segmentaci:
+- Segmentace přes oblasti: bod v obrazu je přiřazován podle definovaných vlastností do oblasti Sᵢ ∈ IM
+- Hraniční přístup: detekujeme obrazové body, které mají vlastnost hranice mezi oblastmi, oddělující oblasti Sₖ a Sₗ
+
+## 10.2 Segmentace prahováním (Thresholding)
+
+Prahování je globální metoda segmentace využívající histogram na bázi rozdělení obrazu do disjunktních obrazových tříd podle hodnoty jasu nebo barevných složek R, G, B. Vychází z transformačního vztahu g = T(p).
+
+### 10.2.1 Základní typy prahování
+
+**a) Prahování na jeden práh**
+```
+g(i,j) = gₑ {nebo = gₘₐₓ, = 1} pro p(i,j) > Tᵣ
+       = gₐ {nebo = gₘᵢₙ, = 0} pro p(i,j) ≤ Tᵣ
+```
+kde:
+- gₐ, gₑ jsou hodnoty výstupního jasu z rozsahu (gₘᵢₙ, gₘₐₓ)
+- 1, 0 lze chápat jako dvouhodnotový snímek (bílá/černá)
+- Tᵣ je hodnota prahu
+
+**d) Prahování ruční**
+Podle tvaru histogramu (bimodální/multimodální) a požadavků na segmentaci se subjektivně zadá jeden nebo více prahů, podle kterých je provedeno prahování.
+
+**e) Prahování automatické**
+Existuje několik přístupů automatického prahování:
+- Metody založené na analýze tvaru histogramu, předpokládající že lokální minimum v bimodálním histogramu může být jasovým předělem
+- Metody pracující s apriorní informací o procentuálním zastoupení objektů a pozadí
+- Metody přepočítávající četnosti výskytu jasů podle doplňujících kritérií
+- Metody založené na statistických charakteristikách snímků
+- Metody pracující s mírou neurčitosti
+
+### 10.2.2 Automatické metody prahování – standardní histogram
+
+Tyto metody jsou založené na analýze tvaru histogramu vstupního snímku jako jednorozměrné funkce. Detekují jedno nebo více lokálních minim, o kterých předpokládáme, že jsou jasovým předělem mezi segmentovanými oblastmi.
+
+**Bimodální histogram**
+Typicky pro snímky s tmavými objekty na světlém pozadí:
+1. Nalezení lokálních maxim Hₚ(max1) a Hₚ(max2)
+2. Mezi těmito maximy hledáme lokální minimum Hₚ(min)
+3. Od tohoto minima odvodíme hodnotu prahu Tᵣ
+4. Čím je histogram plošší, tím je menší důvěra v odhad prahu
+
+Pro robustnost detekce se často stanovuje minimální vzdálenost lokálních maxim D.
+
+**Multimodální histogram**
+Pro prahování "na tři prahy":
+1. Nalezení prvního lokálního minima po prvním lokálním maximu zleva
+2. Nalezení prvního lokálního minima po prvním lokálním maximu zprava
+3. Hodnota jasu odpovídající prvnímu minimu bude práh T₁
+4. Hodnota jasu odpovídající druhému minimu bude práh T₂
+5. Vypočteme středovou vzdálenost Tᶜ mezi lokálními minimy
+6. Od polohy jasu Tᶜ hledáme směrem doprava a doleva první lokální minimum
+7. Hodnota jasu odpovídající tomuto minimu bude práh T₃
+
+Kvůli "zakmitávání" hodnot četností v histogramu se často používá filtrace funkce histogramu, obvykle nerekurzivní FIR (Finite Impulse Response) filtry.
+
+### 10.2.3 Procentní prahování (P-prahování)
+
+Metoda vychází ze znalosti apriorní informace o zastoupení ploch objektů a pozadí ve snímku. Předpokládáme bimodální histogram, kde práh T rozděluje histogram na dvě oblasti C₀ a C₁.
+
+Postup:
+1. Definujeme p jako apriorní informaci procentního zastoupení objektů ve snímku
+2. 1-p jako apriorní informaci o zastoupení pozadí
+3. Postupně načítáme četnosti Hₚ(j) výskytu jednotlivých jasů a dělíme je plochou snímku
+4. Když dosáhneme hodnoty p, jas j je hledaným prahem T
+
+### 10.2.4 Modifikovaný histogram
+
+Konstrukce modifikovaného histogramu spočívá v tom, že každý obrazový bod posuzujeme při započítávání do histogramu nejen podle jeho jasu, ale také podle další definované vlastnosti vyjádřené kriteriální funkcí. Hodnota této funkce je vahou pro započítání příslušného jasu do histogramu.
+
+Pro výpočet běžného histogramu platí:
+```
+H(k) = ∑ βₖ[g(i,j)], kde platí: βₖ[g(i,j)] = 1 pro g(i,j) = k
+                                           = 0 pro g(i,j) ≠ k
+```
+
+Pro výpočet modifikovaného histogramu:
+```
+H*(k) = ∑ βₖ[g(i,j)] * α[g(i,j)], kde platí: βₖ[g(i,j)] = 1 pro g(i,j) = k
+                                               = 0 pro g(i,j) ≠ k
+```
+
+Kriteriální funkce α[g(i,j)] je postavena na testování hranovosti obrazových bodů v definovaném okolí. Používají se hranové operátory jako:
+- Laplace operátor: LAP = |E - (1/8)(A+B+C+D+F+H+I+J)|
+- Roberts Cross operátor: ROB = max{|E-C|, |B-F|}
+- Operátor DIF: maximální rozdíl průměrů jasových úrovní dvojic čtverců 2x2
+
+Pro histogramy s malou hranovostí:
+```
+|α[g(i,j)]| = 1/(1+|Δ|²), |α| ∈ (0,1)
+```
+
+Pro histogramy s vysokou hranovostí:
+```
+|α[g(i,j)]| = |Δ|, |α| ∈ (0, max)
+```
+
+### 10.2.5 Optimální práh (Otsu metoda)
+
+Metoda optimálního prahu vyžaduje znalost relativního histogramu snímku a výpočet statistických charakteristik. Relativní četnost výskytu bodu s jasem i ve snímku chápeme jako pravděpodobnost pᵢ.
+
+V základní úloze hledáme jeden práh T, který rozdělí všechny body do dvou disjunktních tříd C₀ a C₁. Definujeme pravděpodobnosti výskytu bodu ve třídách:
+- ω₀ = P(C₀) = Σⁱ⁼¹ᵏ pᵢ = ω(k)
+- ω₁ = P(C₁) = Σⁱ⁼ᵏ⁺¹ⁿ pᵢ = 1-ω(k)
+
+Vypočítáme střední hodnoty jasu ve třídách jako vážený průměr a zavedeme charakteristiky rozptylu. Kritérium optimality pro volbu prahu je buď minimalizace rozptylu uvnitř tříd, nebo maximalizace rozptylu mezi třídami.
+
+Výpočtový tvar kritéria:
+```
+σ²ᵦ = [μᴛω(k)-μ(k)]²/[ω(k)(1-ω(k))]
+```
+
+Algoritmus:
+1. Pro každé k = 1,...,n počítáme hodnoty σ²ᵦ(k)
+2. Z vypočítaných hodnot určíme maximální hodnotu
+3. Pro k* = Tᵒᵖᵗᵢₘáₗₙí provedeme prahování snímku
+
+## 10.3 Segmentace s užitím matice sousednosti
+
+Matice sousednosti (Greylevel Coocurence Matrix - CM) je globální charakteristika snímku, která zobrazuje sousedství jasů. Prvek s(i,j) v této matici udává, kolikrát jas i sousedí s jasem j v 8-okolí bodu.
+
+Vlastnosti matice CM:
+- Čtvercová symetrická matice
+- Diagonální prvky CM vypovídají o tom, kolikrát jas i sousedí sám se sebou → měřítko velikosti plochy
+- Součet prvků i-tého řádku bez diagonálního prvku je měřítkem velikosti obvodu plochy s jasem i
+
+Algoritmus segmentace pomocí CM:
+1. Výpočet matice CM
+2. Hledání minimálního prvku na diagonále (jas, který budeme přebarvovat)
+3. Na řádku s tímto jasem hledáme největšího souseda ve smyslu matice sousednosti
+4. Tímto novým jasem přebarvíme všechny body snímku s původním jasem
+
+## 10.4 Segmentace pomocí rozplavování jasu
+
+Tato jednoduchá metoda sekvenčního přebarvování slouží jako nástroj segmentace a vizualizace objektů. Většinou se provádí v oblasti zájmu (Region of Interest - ROI).
+
+Princip:
+1. Zvolíme startovací jas C
+2. Postupně přebarvujeme sousední jasy po jednotlivých krocích k
+
+Typy rozplavování:
+- **Obousměrné rozplavování**: Současně přebarvujeme světlejší i tmavší odstíny na startovací jas C
+- **Jednosměrné rozplavování**: Přebarvujeme buď světlejší, nebo tmavší odstíny na startovací jas C
+
+Volba startovacího jasu může být:
+- Ruční
+- Automatická - hledáním lokálního extrému v histogramu ROI
+
+## 10.5 Segmentace narůstáním oblastí
+
+Do této kategorie patří metody přímé konstrukce oblastí, které jsou vhodné pro snímky obsahující šum. Princip spočívá v hledání množiny bodů, které mají stejnou vlastnost homogenity.
+
+Postup:
+1. Rozdělení snímku na oblasti Sᵢ tak, že platí IM = ⋃ᵢ Sᵢ, kde Sₖ ∩ Sₗ = ∅
+2. Zavedení kritéria homogenity H(Sᵢ), které klasifikuje homogenitu oblasti
+   - H(Sᵢ) = TRUE, je-li kritérium splněno
+   - H(Sᵢ ∪ Sⱼ) = FALSE pro všechna i ≠ j, kde Sᵢ a Sⱼ jsou sousední oblasti
+
+Pokud není pro některou oblast splněno kritérium homogenity, nastupuje proces štěpení (Splitting) takové oblasti. Po dosažení stavu, kdy všechny oblasti splňují kritérium homogenity, může nastat proces spojování oblastí (Merging) až do stavu, kdy všechny oblasti budou maximální.
+
+## 10.6 Metoda rozšiřování oblastí
+
+Tato metoda se používá, když mezi dvěma oblastmi S₁ a S₂ s jednoznačně definovanými body vznikne přechodová oblast Sₚ s body, které nelze jednoznačně zařadit.
+
+Princip:
+1. Pro každý bod g(i,j) v přechodové oblasti Sₚ definujeme kriteriální funkci f(i+k,j+l) jeho okolí
+2. Pro každý bod v 8-okolí vypočítáme tuto kriteriální funkci
+3. Hledáme minimum této funkce a podle něj přiřazujeme bod do jedné z oblastí
+
+Tento přístup umožňuje efektivně rozšiřovat jasně definované oblasti na úkor přechodových zón.
+
+## 10.7 Praktické využití segmentace
+
+Segmentace obrazu nachází uplatnění v mnoha oblastech, například:
+- Počítačové vidění a rozpoznávání objektů
+- Lékařské zobrazování (MRI, CT, ultrazvuk)
+- Průmyslová kontrola kvality
+- Zpracování satelitních a leteckých snímků
+- Biometrie a systémy zabezpečení
+- Autonomní vozidla a robotika
+
+Volba konkrétní metody segmentace závisí na charakteristikách zpracovávaného obrazu, požadované přesnosti a výpočetní náročnosti.
+
+-------------------------------------------------------------------------------
 
 
 
