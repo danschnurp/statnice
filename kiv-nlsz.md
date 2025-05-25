@@ -1104,3 +1104,474 @@ big = large
 - Trade-off mezi přesností a rychlostí
 
 
+
+
+
+
+------------
+
+# 5. Jazykové modelování – účel a základní metody. Vyhlazování modelů.
+
+Jazykové modelování je základní úloha v oblasti zpracování přirozeného jazyka (NLP). Jeho hlavním cílem je **odhadnout pravděpodobnost výskytu libovolné sekvence slov**:
+
+**P(w₁ᵏ) = P(w₁, w₂, ..., wₖ) = ?**
+
+### Využití jazykových modelů:
+- **Automatické rozpoznávání řeči (ASR)** - pomáhá vybrat nejpravděpodobnější sekvenci slov
+- **Strojový překlad** - určuje plynulost a správnost přeložených vět
+- **Optické rozpoznávání znaků (OCR)** - zlepšuje přesnost rozpoznávání textu
+- **Automatická oprava textu** - detekce a oprava překlepů
+- **Generování textu** - v moderních LLM (Large Language Models)
+
+### Problémy při modelování jazyka:
+1. **Přirozený jazyk je příliš složitý** pro pravidlový přístup → nutnost učení z dat
+2. **Příliš mnoho možných kombinací slov** → nikdy není dostatek trénovacích dat
+3. **Nedostatečná kapacita** pro uložení všech parametrů modelu
+
+## 5.2 N-gramové jazykové modely
+
+### Základní principy:
+N-gramové modely řeší problém složitosti pomocí **omezení délky historie slov** při odhadování pravděpodobností.
+
+**Řetězové pravidlo (Chain rule)**:
+P(w₁ᵏ) = P(w₁)·P(w₂|w₁)·...·P(wₖ|w₁ᵏ⁻¹) = ∏ᵢ₌₁ᵏ P(wᵢ|w₁ⁱ⁻¹)
+
+**N-gramová aproximace**:
+P(wᵢ|w₁ⁱ⁻¹) ≈ P̃(wᵢ|wᵢ₋ₙ₊₁ⁱ⁻¹)
+
+
+### Typy N-gramových modelů:
+- **N=0**: Uniformní model (všechna slova stejně pravděpodobná)
+- **N=1**: Unigramový model - P(wᵢ)
+- **N=2**: Bigramový model - P(wᵢ|wᵢ₋₁)
+- **N=3**: Trigramový model - P(wᵢ|wᵢ₋₂, wᵢ₋₁) *(nejčastěji používaný)*
+
+### Maximum Likelihood Estimate (MLE):
+
+P(wᵢ|wᵢ₋ₙ₊₁ⁱ⁻¹) ≈ c(wᵢ₋ₙ₊₁ⁱ) / c(wᵢ₋ₙ₊₁ⁱ⁻¹)
+
+kde c() je četnost výskytu dané sekvence v trénovacích datech.
+
+**Příklad**: Pro bigramový model:
+
+P(cat|the) = počet výskytů "the cat" / počet výskytů "the"
+
+
+### Problém řídkých dat (Data Sparsity):
+- Mnoho N-gramů se v trénovacích datech nevyskytuje → **nulová pravděpodobnost**
+- Jediná nulová pravděpodobnost způsobí, že celá věta má pravděpodobnost 0
+- Vede k **nekonečné entropii** modelu
+
+## 5.3 Vyhlazování modelů (Smoothing)
+
+Vyhlazování je nezbytné pro řešení problému nulových pravděpodobností. Principem je **odebrání části pravděpodobnostního prostoru pozorovaným N-gramům a jeho přerozdělení nepozorovaným**.
+
+### 5.3.1 Aditivní vyhlazování (Add-δ smoothing)
+
+Nejjednodušší metoda - přičtení konstanty δ ≥ 0 ke všem četnostem:
+
+
+P(wᵢ|wᵢ₋ₙ₊₁ⁱ⁻¹) ≈ [c(wᵢ₋ₙ₊₁ⁱ) + δ] / [c(wᵢ₋ₙ₊₁ⁱ⁻¹) + δ|W|]
+
+
+kde |W| je velikost slovníku.
+
+**Výhody**: Jednoduchost implementace
+**Nevýhody**: Příliš vysoká pravděpodobnost pro neviděná data
+
+### 5.3.2 Back-off vyhlazování
+
+Pokud N-gram nemá dostatečnou četnost, použije se model nižšího řádu:
+
+
+P_BO(wᵢ|wᵢ₋ₙ₊₁ⁱ⁻¹) = {
+    d(wᵢ₋ₙ₊₁ⁱ)·P_MLE(wᵢ|wᵢ₋ₙ₊₁ⁱ⁻¹)  pro c(wᵢ₋ₙ₊₁ⁱ) > 0
+    α(wᵢ₋ₙ₊₁ⁱ⁻¹)·P_BO(wᵢ|wᵢ₋ₙ₊₂ⁱ⁻¹)  pro c(wᵢ₋ₙ₊₁ⁱ) = 0
+}
+
+
+kde:
+- d() je diskontní koeficient (snižuje pravděpodobnosti pozorovaných N-gramů)
+- α() zajišťuje normalizaci (součet pravděpodobností = 1)
+
+**Příklad**: Pokud trigram "the cat sat" nebyl pozorován, použije se bigram "cat sat".
+
+### 5.3.3 Lineární interpolace
+
+Kombinuje modely různých řádů pomocí vážené sumy:
+
+
+P(wᵢ|wᵢ₋₁¹) ≈ Σₖ₌₁ᴷ λₖ·P̃ₖ(wᵢ|wᵢ₋ₙ₊₁ⁱ⁻¹)
+
+
+kde Σₖ λₖ = 1
+
+**Příklad kombinace**:
+
+P(w₃|w₁,w₂) = λ₃·P_trigram(w₃|w₁,w₂) + λ₂·P_bigram(w₃|w₂) + λ₁·P_unigram(w₃)
+
+
+Váhy λₖ se odhadují pomocí **Expectation-Maximization (EM) algoritmu** na validačních datech.
+
+## 5.4 Hodnocení jazykových modelů
+
+### Cross-entropy:
+
+H(P,P̃) ≈ -(1/k)·log₂ P̃(w₁ᵏ)
+
+
+### Perplexita:
+Nejčastější míra kvality jazykového modelu:
+
+PP = 2^H(P,P̃)
+
+
+**Interpretace**: Perplexita vyjadřuje průměrný počet možností, ze kterých model vybírá při predikci dalšího slova. **Nižší perplexita = lepší model**.
+
+## 5.5 Třídové jazykové modely
+
+Pro řešení řídkosti dat lze slova seskupovat do tříd:
+
+
+P(wᵢ|wᵢ₋ₙ₊₁ⁱ⁻¹) ≈ P(wᵢ|cᵢ)·P̃(cᵢ|cᵢ₋ₙ₊₁ⁱ⁻¹)
+
+
+**Příklady tříd**:
+- Slovní druhy (podstatná jména, slovesa, ...)
+- Lemmatizované tvary (zejména pro flektivní jazyky)
+- Sémantické clustery
+
+## 5.6 Moderní přístupy
+
+I když se v roce 2024 již N-gramové modely nepoužívají jako hlavní metoda, principy vyhlazování a práce s pravděpodobnostmi jsou stále relevantní:
+
+- **Neuronové jazykové modely** - používají embeddingy a neuronové sítě
+- **Transformerové modely** (GPT, BERT) - využívají attention mechanismus
+- **Subword tokenizace** - řeší problém OOV (out-of-vocabulary) slov
+
+Vyhlazování v moderních modelech je implicitně řešeno pomocí:
+- Dropout regularizace
+- Label smoothing
+- Subword tokenizace (BPE, WordPiece)
+
+
+
+----------------------------------------------------------
+
+
+# 6. Sémantika slova, distribuční hypotéza, statistické metody zjišťování sémantické podobnosti slov a dokumentů
+
+## 6.1 Sémantika slova a její reprezentace
+
+**Sémantika slova** se zabývá významem slov v přirozeném jazyce. Význam slova však není statický - závisí na kontextu a formě slova ve větě.
+
+### Základní pojmy:
+- **Word form** - konkrétní tvar slova v textu (např. "made", "making")
+- **Lexeme** - jednotka lexikálního významu zahrnující všechny formy slova
+- **Lemma** - kanonická (slovníková) forma lexému (např. "make")
+- **Word sense** - specifický význam slova v daném kontextu
+
+Vztahy: word form ↔ (M:N) ↔ lemma/lexeme ↔ (M:N) ↔ word sense
+
+### Reprezentace slov v NLP:
+1. **Vocabulary indices** - jednoduché číselné mapování (nevhodné - postrádá sémantickou informaci)
+2. **One-hot vectors** - binární vektory s jednou '1' na pozici slova, zbytek '0'
+   - Příklad: "cat" = [0,0,1,0,0,0,0], "dog" = [0,0,0,1,0,0,0]
+   - Nevýhoda: žádné vztahy mezi slovy, vysoká dimenzionalita
+3. **WordNet** - grafová reprezentace se synonym sety a definovanými vztahy (hypernyma, hyponyma)
+4. **Features/Clusters** - sémantické shluky založené na distribučních vlastnostech
+5. **Word embeddings** - husté, spojité vektorové reprezentace
+
+## 6.2 Distribuční hypotéza
+
+**Distribuční hypotéza** (Distributional Hypothesis) je základní princip moderní sémantiky:
+
+> "A word is characterized by the company it keeps" - význam slova lze odvodit z jeho typického kontextu.
+
+### Klíčové principy:
+- Slova vyskytující se v podobných kontextech mají podobný význam
+- Význam lze vyjádřit pomocí typických okolních slov
+- Pokud model dokáže predikovat okolní slova, rozumí významu
+
+**Příklad**: Slova "kočka" a "pes" se často vyskytují v kontextech jako "krmit _", "_ spí", "mazlit se s _", což naznačuje jejich sémantickou podobnost.
+
+## 6.3 Word embeddings
+
+**Word embeddings** jsou husté vektorové reprezentace slov v n-dimenzionálním prostoru (typicky 60-4096 dimenzí).
+
+### Vlastnosti:
+- Podobná slova → podobné vektory (malá vzdálenost)
+- Zachycují sémantické i syntaktické vztahy
+- Umožňují analogické uvažování (např. král - muž + žena ≈ královna)
+- Redukce dimenzionality oproti one-hot kódování
+
+### Word2Vec (Mikolov et al., 2013)
+Dva hlavní přístupy:
+
+1. **CBOW (Continuous Bag-of-Words)**
+   - Predikuje centrální slovo na základě kontextu
+   - Vstup: okolní slova → Výstup: centrální slovo
+
+2. **Skip-gram**
+   - Predikuje kontextová slova na základě centrálního slova
+   - Vstup: centrální slovo → Výstup: okolní slova
+   - Formálně maximalizuje: P(C) = ∏ P(okolní slova|centrální slovo)
+
+### Trénování:
+- **Negative sampling** - místo klasifikace do |V| tříd používá binární klasifikaci párů slov
+- Pro každý pozitivní příklad (slovo-kontext) se vybere k negativních příkladů
+- Výrazně zrychluje trénování
+
+### FastText
+- Rozšíření Word2Vec o character n-gramy (typicky 3-5 gramů)
+- Příklad: "where" → <wh, whe, her, ere, re>, <where>
+- Výhody:
+  - Zvládá OOV (out-of-vocabulary) slova
+  - Lépe zachycuje morfologii
+  - Vhodné pro jazyky s bohatou morfologií (čeština)
+
+## 6.4 Statistické metody zjišťování podobnosti
+
+### 6.4.1 Podobnost slov
+
+**Kosinová podobnost** - nejčastější metrika pro word embeddings:
+similarity(u,v) = (u·v) / (||u|| × ||v||)
+
+**Aplikace**:
+- Vyhledávání synonym
+- Detekce sémantického posunu v čase
+- Nesupervizovaný překlad (zarovnání vektorových prostorů)
+
+### 6.4.2 Podobnost dokumentů
+
+1. **Průměrování word embeddings**
+   - Jednoduchý ale překvapivě účinný přístup
+   - Lze vážit pomocí TF-IDF
+   - Silná baseline pro měření sémantické podobnosti textů
+
+2. **Doc2Vec** (rozšíření Word2Vec pro dokumenty)
+
+3. **Kontextuální embeddingy** (BERT, GPT)
+   - Dynamické embeddingy závislé na kontextu celé věty
+
+## 6.5 Praktické využití
+
+### Supervizované úlohy:
+- Klasifikace textů (sentiment analysis, detekce spamu)
+- Named Entity Recognition (NER)
+- Strojový překlad
+
+### Nesupervizované úlohy:
+- Sémantické vyhledávání
+- Clustering dokumentů
+- Detekce anomálií v textu
+
+**Příklad použití v praxi**:
+```python
+# Pseudo-kód pro podobnost dokumentů
+def doc_similarity(doc1, doc2, word_embeddings):
+    # Získání embeddingů slov
+    emb1 = [word_embeddings[w] for w in doc1 if w in word_embeddings]
+    emb2 = [word_embeddings[w] for w in doc2 if w in word_embeddings]
+    
+    # Průměrování
+    vec1 = np.mean(emb1, axis=0)
+    vec2 = np.mean(emb2, axis=0)
+    
+    # Kosinová podobnost
+    return cosine_similarity(vec1, vec2)
+```
+
+## 6.6 Výhody a omezení
+
+**Výhody**:
+- Zachycení sémantických vztahů
+- Efektivní reprezentace
+- Přenositelnost mezi úlohami
+
+**Omezení**:
+- Statické embeddingy (jedno slovo = jeden vektor)
+- Ignorování polysémie
+- Závislost na kvalitě trénovacích dat
+
+Moderní přístupy (BERT, GPT) řeší některá omezení pomocí kontextuálních embeddingů, kde stejné slovo může mít různé reprezentace v závislosti na kontextu.
+
+
+
+-----------------------------------------------------------------------
+
+# 7. Neuronové sítě, matematický model umělého neuronu, aktivační funkce, topologie, algoritmus zpětného šíření chyby.
+
+
+[//]: # (todo)
+
+
+-----------------------------------------------------------------------
+
+# 8. Rekurentní neuronové sítě
+
+**Rekurentní neuronové sítě (RNN)** byly navrženy pro zpracování sekvenčních dat, kde záleží na pořadí vstupů. Klasické dopředné sítě (FFNN) mají několik zásadních omezení pro sekvenční úlohy:
+
+1. **Příliš krátký kontext** - FFNN pracují s fixním počtem vstupů
+2. **Rostoucí počet parametrů** - počet vah roste s velikostí kontextového okna
+3. **Nezávislé zpracování pozic** - každá pozice má vlastní váhy, síť se neučí obecné vzory
+
+RNN tyto problémy řeší použitím **sdílených vah** a **rekurentních spojení**.
+
+### Základní architektura RNN
+
+RNN zpracovává vstup sekvenčně, zleva doprava, a udržuje si **skrytý stav** (hidden state), který funguje jako paměť:
+
+```
+h_t = σ_h(U * x_t + V * h_{t-1} + b_h)
+y_t = σ_y(W * h_t + b_y)
+```
+
+Kde:
+- `x_t` je vstup v čase t
+- `h_t` je skrytý stav v čase t  
+- `y_t` je výstup v čase t
+- `U, V, W` jsou váhové matice (sdílené pro všechny časové kroky)
+- `σ_h, σ_y` jsou aktivační funkce
+
+**Výhody:**
+- Pouze 3 váhové matice nezávisle na délce sekvence
+- Schopnost modelovat závislosti v datech
+- Přirozené zpracování sekvencí různých délek
+
+## 8.2 Problém mizejícího a explodujícího gradientu
+
+Hlavní problém RNN spočívá v **backpropagation through time (BPTT)**. Gradient pro váhu V obsahuje součin:
+
+```
+∂h_t/∂h_i = ∏_{j=i+1}^t (σ_h^(j))' * V
+```
+
+Pokud je největší vlastní číslo matice V:
+- **< 1**: gradient exponenciálně klesá → **vanishing gradient**
+- **> 1**: gradient exponenciálně roste → **exploding gradient**
+
+**Důsledky:**
+- RNN si "nepamatují" vzdálené závislosti
+- Učení je nestabilní nebo velmi pomalé
+- Model rychle zapomíná informace z dřívějších časových kroků
+
+**Řešení explodujícího gradientu:** Gradient clipping - omezení maximální normy gradientu
+
+## 8.3 LSTM (Long Short-Term Memory)
+
+LSTM řeší problém mizejícího gradientu pomocí sofistikovaného mechanismu **bran** (gates) a **paměťové buňky**.
+
+### Komponenty LSTM:
+1. **Paměťová buňka (c_t)** - dlouhodobá paměť
+2. **Forget gate (f_t)** - rozhoduje, co zapomenout
+3. **Input gate (i_t)** - rozhoduje, co si zapamatovat
+4. **Output gate (o_t)** - kontroluje výstup
+
+### Výpočet LSTM:
+
+```
+f_t = σ(W_f * x_t + U_f * h_{t-1} + b_f)    # forget gate
+i_t = σ(W_i * x_t + U_i * h_{t-1} + b_i)    # input gate  
+o_t = σ(W_o * x_t + U_o * h_{t-1} + b_o)    # output gate
+c̃_t = tanh(W_c * x_t + U_c * h_{t-1} + b_c) # kandidát
+c_t = f_t ⊙ c_{t-1} + i_t ⊙ c̃_t             # nová paměť
+h_t = o_t ⊙ tanh(c_t)                        # výstup
+```
+
+Kde ⊙ je element-wise násobení (Hadamard product).
+
+**Klíčová vlastnost:** Forget gate vytváří **zkratku** podobnou residual connections, která umožňuje gradientu téct přímo:
+```
+∂c_t/∂c_{t-1} = f_t + další členy
+```
+
+## 8.4 GRU (Gated Recurrent Unit)
+
+GRU je jednodušší varianta LSTM pouze se dvěma branami:
+
+1. **Update gate (z_t)** - rozhoduje mezi kopírováním předchozího stavu a aktualizací
+2. **Reset gate (r_t)** - kontroluje závislost na předchozím stavu
+
+```
+z_t = σ(W_z * x_t + U_z * h_{t-1} + b_z)
+r_t = σ(W_r * x_t + U_r * h_{t-1} + b_r)  
+h̃_t = tanh(W_h * x_t + U_h * (r_t ⊙ h_{t-1}) + b_h)
+h_t = (1 - z_t) ⊙ h_{t-1} + z_t ⊙ h̃_t
+```
+
+**Výhody GRU:**
+- Méně parametrů než LSTM
+- Rychlejší trénování
+- Často srovnatelný výkon s LSTM
+
+## 8.5 Varianty a vylepšení RNN
+
+### Bidirectional RNN
+Zpracovává sekvenci v obou směrech:
+- Forward RNN: zleva doprava
+- Backward RNN: zprava doleva
+- Výstupy se konkatenují
+
+**Použití:** Part-of-speech tagging, named entity recognition
+
+### Stacked RNN
+Více vrstev RNN nad sebou, kde výstup jedné vrstvy je vstupem další.
+
+**Použití:** Strojový překlad, komplexní jazykové modelování
+
+## 8.6 Praktické aplikace RNN
+
+### Jazykové modelování
+- Predikce dalšího slova v sekvenci
+- Generování textu
+- **Příklad:** GPT modely (před transformery)
+
+### Named Entity Recognition (NER)
+- Použití BIO tagování (Begin-Inside-Outside)
+- BiLSTM + CRF pro dekódování
+- **Příklad:** Identifikace osob, míst, organizací v textu
+
+### Strojový překlad
+- Encoder-decoder architektura
+- Attention mechanismus pro dlouhé sekvence
+- **Příklad:** Seq2seq modely před transformery
+
+### Analýza sentimentu
+- Klasifikace pomocí posledního hidden state
+- **Příklad:** Hodnocení recenzí jako pozitivní/negativní
+
+## 8.7 Předtrénované RNN modely
+
+### ELMo (Embeddings from Language Models)
+- Kontextualizované word embeddings
+- Bi-LSTM jazykový model
+- Lineární kombinace vrstev pro každou úlohu:
+```
+ELMo_task = γ_task * Σ s_j^task * h_j^LM
+```
+
+**Výhody ELMo:**
+- Reprezentace závislé na kontextu
+- Lepší výkon než statické embeddings
+- Transfer learning pro NLP úlohy
+
+## 8.8 Omezení RNN a přechod k transformerům
+
+**Hlavní nevýhody RNN:**
+1. **Sekvenční zpracování** - nelze paralelizovat
+2. **Omezená paměť** - i LSTM má problémy s velmi dlouhými sekvencemi
+3. **Pomalé trénování** - kvůli sekvenční povaze
+
+Tyto problémy vedly k vývoji **Transformer** architektury, která používá attention mechanismus místo rekurence a umožňuje plnou paralelizaci.
+
+**Kdy stále používat RNN:**
+- Malé datasety
+- Online/streaming zpracování
+- Úlohy s jasně sekvenční povahou
+- Omezené výpočetní zdroje
+
+
+-----------------------------------------------------------------------
+
+
