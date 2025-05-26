@@ -1575,3 +1575,326 @@ Tyto problémy vedly k vývoji **Transformer** architektury, která používá a
 -----------------------------------------------------------------------
 
 
+
+
+
+# 9. Konvoluční neuronové sítě
+Konvoluční neuronové sítě (CNN) využívají matematickou operaci zvanou **konvoluce**. Tato operace pracuje se dvěma tenzory:
+- **Vstupní tenzor (I)** - např. obrázek nebo sekvence slov
+- **Kernel/filtr (K)** - malý tenzor s váhami, který se "posouvá" přes vstup
+
+**Princip konvoluce**: Kernel se postupně přikládá na různé pozice vstupního tenzoru. V každé pozici se provede bodový součin (dot product) mezi kernelem a odpovídající částí vstupu. Výsledky se ukládají do výstupního tenzoru (O).
+
+### 9.1.2 Matematická definice
+Pro 2D konvoluci (matice I a K):
+```
+O[i,j] = ΣΣ I[i+a, j+b] · K[a,b]
+```
+kde suma probíhá přes všechny prvky kernelu.
+
+### 9.1.3 Klíčové hyperparametry
+- **Stride** - krok posunu kernelu (výchozí hodnota 1)
+- **Padding** - přidání hodnot na okraje vstupu pro zachování rozměrů:
+  - Zero padding - přidání nul
+  - Mirrored padding - zrcadlení okrajových hodnot
+  - Rotated padding - rotace okrajových hodnot
+
+## 9.2 Pooling vrstvy
+
+**Pooling** redukuje prostorové rozměry a počet parametrů. Na rozdíl od konvoluce:
+- Nemá trénovatelné parametry
+- Aplikuje se bez překryvu na celý vstup
+- Používá agregační funkce místo bodového součinu
+
+**Nejčastější typy**:
+- **Max pooling** - vybírá maximum z oblasti
+- **Average pooling** - počítá průměr oblasti
+
+Příklad max poolingu 2×2 s krokem 2:
+```
+Vstup:        Výstup:
+[1 2 3 4]     [4 5]
+[3 4 0 5]  →  [6 8]
+[0 2 3 1]     
+[2 6 0 8]
+```
+
+## 9.3 Architektura CNN pro NLP
+
+### 9.3.1 Jednovrstvá CNN pro klasifikaci vět
+**Postup**:
+1. **Vstup**: Věta reprezentovaná jako sekvence word embeddingů
+2. **Konvoluce**: Aplikace několika filtrů různých velikostí (např. 3, 4, 5 slov)
+3. **Max pooling**: Výběr nejdůležitější features z každého filtru
+4. **Plně propojená vrstva**: Klasifikace pomocí softmax
+
+**Příklad použití**: Sentiment analýza, klasifikace témat
+
+### 9.3.2 Vylepšení architektury
+- **Dropout** - náhodné vynulování neuronů pro prevenci přeučení (typicky p=0.5)
+- **Batch normalization** - normalizace aktivací pro stabilizaci učení
+- **Multi-channel vstup** - kombinace statických a fine-tunovaných embeddingů
+
+## 9.4 Hluboké konvoluční sítě (VD-CNN)
+
+### 9.4.1 Motivace a výzvy
+Velmi hluboké sítě (29-49 vrstev) pro NLP inspirované úspěchem ResNet v počítačovém vidění.
+
+**Hlavní problém**: Mizející gradienty při zpětné propagaci
+**Řešení**: Skip connections (residuální spojení)
+
+### 9.4.2 Architektura VD-CNN
+- **Vstup**: Znaky (ne slova) → character-level reprezentace
+- **Konvoluční bloky**: Obsahují 2 konvoluční vrstvy se skip connection
+- **Pooling**: Redukce rozměrů o polovinu
+- **Temporal batch normalization**: Stabilizace hodnot
+
+```
+x → [Conv → BN → ReLU → Conv → BN] → (+x) → ReLU
+         ↑__________________________|
+                 skip connection
+```
+
+## 9.5 Výhody a použití CNN
+
+### 9.5.1 Výhody
+- **Sdílení parametrů** - stejný filtr se aplikuje na celý vstup
+- **Paralelizace** - výpočty lze snadno paralelizovat
+- **Zachycení lokálních vzorů** - efektivní pro n-gramy a lokální závislosti
+- **Invariance k posunu** - detekce vzorů nezávisle na pozici
+
+### 9.5.2 Praktické aplikace v NLP
+- **Klasifikace textů** - sentiment, témata, spam detekce
+- **Strojový překlad** - jeden z prvních úspěšných přístupů
+- **Character-level modelování** - práce přímo se znaky místo slov
+- **Named Entity Recognition** - identifikace pojmenovaných entit
+
+### 9.5.3 Srovnání s RNN
+- **CNN**: Rychlejší trénování, paralelní zpracování, lepší pro lokální vzory
+- **RNN**: Lepší pro dlouhé závislosti, sekvenční zpracování
+
+## 9.6 Implementační detaily
+
+### 9.6.1 Network in Network (1×1 konvoluce)
+Speciální případ s kernelem velikosti 1×1:
+- Mapování mezi kanály bez prostorové interakce
+- Redukce počtu parametrů
+- Ekvivalent plně propojené vrstvy aplikované na každou pozici
+
+-----------------------------------------------------------------
+
+### 9.6.2 Doporučené postupy
+- Používat více filtrů různých velikostí (3, 4, 5) pro zachycení n-gramů různých délek
+- Inicializovat word embeddingy předtrénovanými vektory (Word2Vec, GloVe)
+- Fine-tunovat embeddingy pouze při dostatku dat
+- Aplikovat dropout před finální klasifikační vrstvou
+
+
+----------------------------------------------------------------
+
+
+
+
+-----------------------------------------------------------------------
+
+# 10. Architektura Transformer, BERT model
+
+Transformer je architektura představená v článku "Attention Is All You Need" (Vaswani et al., 2017), která nahrazuje rekurentní vrstvy pouze mechanismem pozornosti (attention). Hlavní výhody:
+
+- **Paralelizace**: Na rozdíl od RNN lze zpracovávat všechny pozice současně
+- **Konstantní délka gradientové cesty**: Nezávislá na délce sekvence
+- **Efektivní zachycení dlouhých závislostí**: Díky přímému propojení všech pozic
+
+### 10.1.2 Klíčové komponenty
+
+#### Scaled Dot-Product Attention
+Základní mechanismus pozornosti využívající tři vstupy - Query (Q), Key (K) a Value (V):
+
+```
+Attention(Q, K, V) = softmax(QK^T / √d_k) · V
+```
+
+- **Škálování √d_k**: Zachovává rozptyl vstupů a zabraňuje saturaci softmax funkce
+- **Příklad použití**: Při překladu "The cat sat" → "Kočka seděla", attention umožňuje modelu přímo propojit "cat" s "kočka"
+
+#### Multi-Head Attention
+Rozšíření základní pozornosti o více "hlav", kde každá se učí jiné aspekty dat:
+
+```
+MultiHead(Q, K, V) = Concat(head_1, ..., head_h)W^O
+kde head_i = Attention(QW_i^Q, KW_i^K, VW_i^V)
+```
+
+- Typicky 8-16 hlav
+- Každá hlava může zachytit jiný typ vztahů (syntaktické, sémantické)
+
+### 10.1.3 Encoder-Decoder architektura
+
+**Encoder** (6 vrstev):
+- Multi-head self-attention
+- Position-wise feed-forward network (2 FC vrstvy s ReLU)
+- Residual connections + Layer normalization
+
+**Decoder** (6 vrstev):
+- Masked multi-head self-attention (maskování budoucích pozic)
+- Encoder-decoder attention (cross-attention)
+- Position-wise feed-forward network
+- Residual connections + Layer normalization
+
+### 10.1.4 Pozicační kódování
+
+Jelikož attention nemá inherentní pořadí, přidává se pozicační informace:
+
+```
+PE(pos, 2i) = sin(pos/10000^(2i/d_model))
+PE(pos, 2i+1) = cos(pos/10000^(2i/d_model))
+```
+
+- Periodické funkce umožňují generalizaci na delší sekvence
+- Přičítá se k word embeddings
+
+### 10.1.5 Výhody a nevýhody
+
+**Výhody**:
+- O(1) sekvenční závislost (vs. O(n) u RNN)
+- Efektivní paralelizace
+- Explicitní modelování všech párových vztahů
+
+**Nevýhody**:
+- O(n²) paměťová složitost
+- Omezená délka vstupní sekvence (typicky 512 tokenů)
+
+## 10.2 BERT Model
+
+### 10.2.1 Základní charakteristika
+
+BERT (Bidirectional Encoder Representations from Transformers) je předtrénovaný jazykový model založený pouze na encoder části Transformeru:
+
+- **12 vrstev** (BERT-base) nebo **24 vrstev** (BERT-large)
+- **110M parametrů** (base) nebo **340M parametrů** (large)
+- **Bidirectional**: Na rozdíl od GPT využívá kontext z obou směrů
+- **Encoder-only**: Využívá pouze encoder část Transformeru
+
+### 10.2.2 Vstupní reprezentace
+
+BERT kombinuje tři typy embeddings sečtených dohromady:
+
+1. **Token embeddings**: WordPiece tokenizace (30k slovník)
+2. **Segment embeddings**: Rozlišení dvou vět (A/B)
+3. **Position embeddings**: Naučené pozicační embeddings (max 512)
+
+Speciální tokeny:
+- `[CLS]`: Klasifikační token na začátku
+- `[SEP]`: Odděluje věty
+- `[MASK]`: Pro masked language modeling
+
+### 10.2.3 Předtrénování
+
+BERT používá dva předtrénovací úkoly:
+
+#### Masked Language Model (MLM)
+- **15% tokenů** je náhodně vybráno k predikci
+- Z vybraných tokenů: **80% nahrazeno `[MASK]`**, **10% náhodným tokenem**, **10% ponecháno beze změny**
+- Model musí predikovat původní tokeny na základě obousměrného kontextu
+
+**Příklad**:
+```
+Vstup: "The [MASK] sat on the mat"
+Predikce: "cat"
+```
+
+#### Next Sentence Prediction (NSP)
+- **50%** dvojic tvoří konsekutivní věty ze stejného dokumentu
+- **50%** dvojic tvoří náhodně vybrané věty z různých dokumentů
+- Model klasifikuje, zda věta B logicky následuje po větě A
+- Pomáhá modelu porozumět vztahům mezi větami
+
+### 10.2.4 Fine-tuning pro konkrétní úlohy
+
+BERT využívá transfer learning - předtrénovaný model se doladí pro konkrétní úlohy přidáním jednoduché výstupní vrstvy:
+
+#### Klasifikace textu
+- Použití reprezentace `[CLS]` tokenu
+- Přidání jedné plně propojené vrstvy
+- **Aplikace**: Sentiment analýza, detekce spamu, klasifikace témat
+
+#### Párová klasifikace vět
+- Dva vstupy oddělené `[SEP]` tokenem
+- **Aplikace**: Detekce parafráze, textová entailment
+
+#### Named Entity Recognition (NER)
+- Klasifikace každého tokenu pomocí softmax vrstvy
+- **Aplikace**: Rozpoznání osob, míst, organizací, dat
+
+#### Question Answering
+- Predikce pozice začátku a konce odpovědi ve vstupním textu
+- Dvě výstupní vrstvy pro start/end pozice
+- **Aplikace**: SQuAD dataset, informační systémy
+
+## 10.3 Modifikace a vylepšení
+
+### 10.3.1 RoBERTa (Robustly Optimized BERT)
+- Odstranění NSP úlohy
+- Větší batch size (8k)
+- Delší trénování na více datech
+- Dynamické maskování
+
+
+### 10.3.2 ModernBERT
+
+ModernBERT představuje současný state-of-the-art v BERT architektuře s několika klíčovými inovacemi:
+
+#### Architektonické vylepšení
+- **Rozšířená pozicační podpora**: Zvýšení maximální délky sekvence z 512 na 8192 tokenů
+- **Optimalizované attention**: Použití Flash Attention pro efektivnější zpracování dlouhých sekvencí
+- **Vylepšené normalizace**: Kombinace RMSNorm a LayerNorm pro stabilnější trénování
+- **Rotary Position Embedding (RoPE)**: Modernější pozicační kódování místo naučených embeddings
+
+#### Trénovací optimalizace
+- **Unigram tokenizace**: Efektivnější než původní WordPiece
+- **Geometrická pozornost**: Lepší zachycení hierarchických vztahů v textu
+- **Vylepšené maskování**: Adaptivní strategie maskování založené na důležitosti tokenů
+- **Multi-task předtrénování**: Kombinace MLM s dalšími auxiliary úlohami
+
+#### Technické specifikace
+- **ModernBERT-base**: 139M parametrů, podobné BERT-base ale efektivnější
+- **ModernBERT-large**: 395M parametrů s výrazně lepším výkonem
+- **Rychlost**: 2-3x rychlejší inference než původní BERT
+- **Paměťová efektivita**: 40% nižší paměťové nároky
+
+#### Výkonnostní výsledky
+- **GLUE benchmark**: 2-4% zlepšení oproti RoBERTa
+- **Dlouhé sekvence**: Excelentní výkon na úlohách vyžadujících dlouhý kontext
+- **Multilingual**: Lepší cross-lingual transfer než multilingual BERT
+
+### 10.3.3 LoRA (Low-Rank Adaptation)
+Efektivní metoda pro fine-tuning velkých modelů:
+
+```
+W' = W₀ + ΔW = W₀ + BA
+```
+
+- **Zmrazené váhy**: Původní váhy W₀ zůstávají neměnné
+- **Nízko-rankové matice**: Trénují se pouze malé matice B (d×r) a A (r×k)
+- **Typický rank**: r = 1-64, značně menší než původní dimenze
+- **Výhody**: Rychlejší trénování, menší paměťové nároky, modulární adaptace
+
+## 10.4 Shrnutí a aplikace
+
+**Transformer** revolucionalizoval NLP díky:
+- Efektivní paralelizaci
+- Schopnosti zachytit dlouhé závislosti
+- Flexibilitě architektury
+
+**BERT** ukázal sílu předtrénovaných modelů:
+- Transfer learning v NLP
+- State-of-the-art výsledky na mnoha úlohách
+- Základ pro další výzkum (GPT, T5, další)
+
+**Praktické aplikace**:
+- Strojový překlad
+- Chatboti a konverzační AI
+- Vyhledávání a extrakce informací
+- Generování textu
+
+
