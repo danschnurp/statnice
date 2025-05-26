@@ -1402,11 +1402,327 @@ Moderní přístupy (BERT, GPT) řeší některá omezení pomocí kontextuáln�
 
 # 7. Neuronové sítě, matematický model umělého neuronu, aktivační funkce, topologie, algoritmus zpětného šíření chyby.
 
+**Umělá neuronová síť (Artificial Neural Network, ANN)** je matematický výpočetní model inspirovaný biologickými neuronovými sítěmi, zejména lidským mozkem a nervovou soustavou.
 
-[//]: # (todo)
+### Klíčové charakteristiky:
+- **Adaptivní systém** - mění svoji strukturu během fáze učení
+- **Paralelní zpracování** - více neuronů pracuje současně
+- **Schopnost generalizace** - umí rozpoznat vzory i v neznámých datech
+- **Odolnost vůči šumu** - dokáže pracovat s nepřesnými nebo neúplnými daty
 
+Neuronová síť modeluje komplexní relace mezi vstupy a výstupy a hledá ve vstupních datech vzory. Matematicky definuje funkci **f: x ∈ Rⁿ → y ∈ Rᴹ**.
 
------------------------------------------------------------------------
+## 7.2 Historický vývoj
+
+### Klíčové milníky:
+- **1943**: McCulloch & Pitts - první matematický model neuronu
+- **1949**: Hebb - zákon učení neuronových sítí
+- **1958**: Rosenblatt - perceptron a učící algoritmus
+- **1969**: Minsky & Papert - kniha "Perceptrons" ukázala omezení jednovrstvých sítí → pokles zájmu
+- **80. léta 20. století**: Masivní renesance díky DARPA
+- **1986**: Znovuobjevení algoritmu backpropagation
+- **1989-1991**: Cybenko a Hornik - matematické důkazy vlastností neuronových sítí
+
+## 7.3 Matematický model umělého neuronu
+
+### 7.3.1 McCulloch-Pitts neuron
+
+Základní model umělého neuronu se skládá ze tří hlavních částí:
+
+#### Synaptické operace (váhování):
+```
+u(t) = Σᵢ₌₁ⁿ xᵢ(t) × wᵢ(t)
+```
+- **xᵢ(t)** - i-tý vstup v čase t
+- **wᵢ(t)** - synaptická váha pro i-tý vstup
+- **u(t)** - vážený součet vstupů
+
+#### Somatické operace (prahování):
+```
+v(t) = u(t) - w₀
+```
+- **w₀** - práh neuronu (bias)
+- **v(t)** - čistý vstup do aktivační funkce
+
+#### Aktivační funkce:
+```
+y(t) = g(v(t))
+```
+
+### 7.3.2 RBF neuron (Radial Basis Function)
+
+Modifikace standardního neuronu pro jiný způsob dělení vstupního prostoru:
+
+```
+u(t) = Σᵢ₌₁ⁿ [(xᵢ(t) - wᵢ(t))²]
+```
+
+- **LBF** (Linear Basis Function) - dělí prostor lineárně pomocí nadrovin
+- **RBF** (Radial Basis Function) - dělí prostor pomocí hyperkouli
+
+## 7.4 Aktivační funkce
+
+Aktivační funkce určuje, jak neuron reaguje na vstupní signál. Výběr závisí na charakteru řešené úlohy.
+
+### 7.4.1 Sigmoidální funkce (nejčastější)
+```
+σ(x) = 1/(1 + e⁻ˣ)
+```
+**Výhody:**
+- Spojitá a diferencovatelná v celém R
+- Výstup v intervalu (0,1)
+- Vhodná pro backpropagation
+
+### 7.4.2 Hyperbolický tangens
+```
+tanh(x) = (eˣ - e⁻ˣ)/(eˣ + e⁻ˣ)
+```
+- Výstup v intervalu (-1,1)
+- Často lepší pro skryté vrstvy
+
+### 7.4.3 ReLU (Rectified Linear Unit)
+```
+ReLU(x) = max(0,x)
+```
+- Jednoduchá na výpočet
+- Řeší problém mizejících gradientů
+- Standard v moderních hlubokých sítích
+
+### 7.4.4 Prahová funkce
+```
+f(x) = {0 if x < θ
+        {1 if x ≥ θ
+```
+- Výpočetně jednoduchá
+- Nediferencovatelná - problém pro učení
+
+### 7.4.5 Lineární funkce
+```
+f(x) = cx
+```
+- Použití v výstupních vrstvách pro regresi
+
+## 7.5 Topologie neuronových sítí
+
+### 7.5.1 Vícevrstvý perceptron (Multi-Layer Perceptron, MLP)
+
+Nejčastější architektura skládající se z:
+
+#### Vstupní vrstva (Input Layer):
+- Přijímá vstupní data
+- Počet neuronů = počet vstupních atributů
+
+#### Skrytá vrstva (Hidden Layer):
+- Zpracovává informace
+- Může být více skrytých vrstev
+- Počet neuronů se volí experimentálně
+
+#### Výstupní vrstva (Output Layer):
+- Poskytuje finální výsledek
+- **Binární klasifikace**: 1 neuron, výstup {0,1}
+- **Multi-class klasifikace**: K neuronů pro K tříd
+
+### 7.5.2 Označení a konvence
+- **L** - celkový počet vrstev sítě
+- **sₗ** - počet neuronů v l-té vrstvě
+- **Θ⁽ˡ⁾** - matice vah mezi vrstvou l a l+1
+
+**Poznámka**: Více než 3 vrstvy tradičně nemělo smysl (Cybenko), moderní hluboké sítě toto překonaly.
+
+### 7.5.3 Další topologie
+- **Rekurentní sítě** - s zpětnou vazbou
+- **Konvoluční sítě** - pro zpracování obrazů
+- **Samoorganizující mapy** - pro shlukování
+
+## 7.6 Cenová funkce
+
+Pro vícevrstvé neuronové sítě se používá generalizace cenové funkce logistické regrese.
+
+### 7.6.1 Binární klasifikace
+```
+J(Θ) = -1/m Σᵢ₌₁ᵐ [y⁽ⁱ⁾ log(hΘ(x⁽ⁱ⁾)) + (1-y⁽ⁱ⁾) log(1-hΘ(x⁽ⁱ⁾))]
+```
+
+### 7.6.2 Multi-class klasifikace
+```
+J(Θ) = -1/m Σᵢ₌₁ᵐ Σₖ₌₁ᴷ [yₖ⁽ⁱ⁾ log((hΘ(x⁽ⁱ⁾))ₖ) + (1-yₖ⁽ⁱ⁾) log(1-(hΘ(x⁽ⁱ⁾))ₖ)]
+```
+
+### 7.6.3 Regularizace
+```
+J(Θ) = cenová_funkce + λ/(2m) Σ regularizační_člen
+```
+- **λ** - regularizační parametr
+- Zabraňuje přeučení (overfitting)
+
+## 7.7 Algoritmus zpětného šíření chyby (Backpropagation)
+
+Klíčový algoritmus pro učení vícevrstvých neuronových sítí. Umožňuje efektivní výpočet gradientů cenové funkce.
+
+### 7.7.1 Princip
+1. **Dopředné šíření** - výpočet aktivací všech neuronů
+2. **Zpětné šíření** - výpočet chyb od výstupu ke vstupu  
+3. **Aktualizace vah** - podle vypočtených gradientů
+
+### 7.7.2 Dopředné šíření (Forward Propagation)
+
+Pro trénovací vzorek (x,y):
+```
+a⁽¹⁾ = x
+z⁽ˡ⁺¹⁾ = Θ⁽ˡ⁾a⁽ˡ⁾
+a⁽ˡ⁺¹⁾ = g(z⁽ˡ⁺¹⁾)
+```
+
+kde **l = 1, 2, ..., L-1**
+
+### 7.7.3 Zpětné šíření (Backward Propagation)
+
+#### Chyba výstupní vrstvy:
+```
+δ⁽ᴸ⁾ = a⁽ᴸ⁾ - y
+```
+
+#### Chyba skrytých vrstev:
+```
+δ⁽ˡ⁾ = (Θ⁽ˡ⁾)ᵀδ⁽ˡ⁺¹⁾ .* g'(z⁽ˡ⁾)
+```
+
+kde **.*** značí násobení po složkách (element-wise)
+
+#### Derivace aktivační funkce (sigmoid):
+```
+g'(z) = g(z)(1-g(z))
+```
+
+### 7.7.4 Kompletní algoritmus
+
+```
+Vstup: trénovací množina {(x⁽¹⁾,y⁽¹⁾), ..., (x⁽ᵐ⁾,y⁽ᵐ⁾)}
+
+1. Inicializace: Δᵢⱼ⁽ˡ⁾ = 0 pro všechna i,j,l
+
+2. Pro i = 1 až m:
+   a) a⁽¹⁾ = x⁽ⁱ⁾
+   b) Proveď dopředné šíření → získej a⁽ˡ⁾ pro l = 2,...,L
+   c) δ⁽ᴸ⁾ = a⁽ᴸ⁾ - y⁽ⁱ⁾
+   d) Proveď zpětné šíření → získej δ⁽ˡ⁾ pro l = L-1,...,2
+   e) Δᵢⱼ⁽ˡ⁾ += aⱼ⁽ˡ⁾δᵢ⁽ˡ⁺¹⁾
+
+3. Výpočet gradientu:
+   ∂J(Θ)/∂Θᵢⱼ⁽ˡ⁾ = 1/m Δᵢⱼ⁽ˡ⁾ (+ regularizace)
+
+4. Aktualizace vah:
+   Θᵢⱼ⁽ˡ⁾ = Θᵢⱼ⁽ˡ⁾ - α × ∂J(Θ)/∂Θᵢⱼ⁽ˡ⁾
+```
+
+[//]: # (### 7.7.5 Praktické poznámky)
+
+[//]: # ()
+[//]: # (**Inicializace vah:**)
+
+[//]: # (- Náhodná inicializace malými hodnotami)
+
+[//]: # (- Nesmí být všechny váhy stejné &#40;symmetry breaking&#41;)
+
+[//]: # ()
+[//]: # (**Rychlost učení α:**)
+
+[//]: # (- Příliš malá → pomalé učení)
+
+[//]: # (- Příliš velká → oscilace, nekonvergence)
+
+[//]: # (## 7.8 Praktické aplikace)
+
+[//]: # ()
+[//]: # (### 7.8.1 Klasifikace)
+
+[//]: # (- **Rozpoznávání obrazů** - číslice, obličeje, objekty)
+
+[//]: # (- **Analýza textu** - sentiment analýza, klasifikace dokumentů)
+
+[//]: # (- **Medicínská diagnostika** - analýza EKG, EEG)
+
+[//]: # ()
+[//]: # (**Příklad**: Klasifikace ručně psaných číslic &#40;MNIST&#41;)
+
+[//]: # (- Vstup: 28×28 pixelů = 784 vstupů)
+
+[//]: # (- Výstup: 10 tříd &#40;číslice 0-9&#41;)
+
+[//]: # (- Architektura: 784-100-10 neuronů)
+
+[//]: # ()
+[//]: # (### 7.8.2 Regrese)
+
+[//]: # (- **Predikce časových řad** - ceny akcií, poptávka energie)
+
+[//]: # (- **Technické aplikace** - řízení procesů, optimalizace)
+
+[//]: # ()
+[//]: # (### 7.8.3 Aproximace funkcí)
+
+[//]: # (- **Nelineární mapování** - aproximace složitých závislostí)
+
+[//]: # (- **Komprese dat** - autoenkodéry)
+
+[//]: # ()
+[//]: # (## 7.9 Výhody a nevýhody)
+
+[//]: # ()
+[//]: # (### 7.9.1 Výhody)
+
+[//]: # (- **Univerzální aproximátory** - mohou aproximovat libovolnou spojitou funkci)
+
+[//]: # (- **Adaptabilita** - učí se z dat)
+
+[//]: # (- **Paralelizovatelnost** - rychlé zpracování)
+
+[//]: # (- **Odolnost vůči šumu** - generalizační schopnosti)
+
+[//]: # ()
+[//]: # (### 7.9.2 Nevýhody)
+
+[//]: # (- **Černá skříňka** - obtížná interpretovatelnost)
+
+[//]: # (- **Lokální minima** - možnost uvíznutí v suboptimálním řešení)
+
+[//]: # (- **Overfitting** - přeučení na trénovacích datech)
+
+[//]: # (- **Výpočetní náročnost** - zejména u velkých sítí)
+
+[//]: # ()
+[//]: # (## 7.10 Moderní rozšíření)
+
+[//]: # ()
+[//]: # (### 7.10.1 Hluboké sítě &#40;Deep Learning&#41;)
+
+[//]: # (- Více skrytých vrstev &#40;desítky až stovky&#41;)
+
+[//]: # (- Specializované architektury &#40;CNN, RNN, Transformer&#41;)
+
+[//]: # (- Pokročilé aktivační funkce &#40;ReLU, Leaky ReLU&#41;)
+
+[//]: # ()
+[//]: # (### 7.10.2 Regularizační techniky)
+
+[//]: # (- **Dropout** - náhodné vypínání neuronů)
+
+[//]: # (- **Batch Normalization** - normalizace aktivací)
+
+[//]: # (- **Early Stopping** - zastavení učení při zhoršování validace)
+
+[//]: # ()
+[//]: # (### 7.10.3 Optimalizační algoritmy)
+
+[//]: # (- **Adam** - adaptivní rychlost učení)
+
+[//]: # (- **RMSprop** - adaptace na gradient)
+
+[//]: # (- **Momentum** - zrychlení konvergence)
+
+[//]: # ()
+[//]: # ()
+[//]: # (-----------------------------------------------------------------------)
 
 # 8. Rekurentní neuronové sítě
 
@@ -1896,5 +2212,7 @@ W' = W₀ + ΔW = W₀ + BA
 - Chatboti a konverzační AI
 - Vyhledávání a extrakce informací
 - Generování textu
+
+
 
 
