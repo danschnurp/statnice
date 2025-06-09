@@ -1,6 +1,4 @@
 # 1. Základní v čase spojité signály a jejich vlastnosti, vzorkování, kvantizace, číselné řady a jejich vlastnosti, základní operace.
-## 1.1. ANALOGOVÉ (SPOJITÉ) SIGNÁLY
-
 ### Základní charakteristika spojitých signálů
 - **Definice**: Spojité signály jsou spojitou funkcí času popř. frekvence
 - **Popis**: Matematický výraz, graficky nebo tabulkou hodnot
@@ -21,27 +19,63 @@
 ### Důležité signály a jejich vlastnosti
 
 #### Sinusoida
-- **Rovnice**: y(t) = A·sin(Ωt+φ)
-  - A - amplituda
-  - Ω - úhlová frekvence [rad/sec]
-  - φ - fáze [rad]
-- **Vztahy**:
-  - F = Ω/(2π) - frekvence [Hz]
-  - T = 1/F = 2π/Ω - perioda [s]
-  - φ = 2πFt₀ = Ωt₀ - kde t₀ je časový posun
-- **Vlastnosti**:
-  - Periodická s periodou T=1/F
-  - Spojité sinusoidy s různou frekvencí jsou vždy různé
-  - S rostoucí frekvencí roste počet oscilací v daném časovém intervalu
-  - Sinusoida a kosinus jsou stejné signály, posunuté o 90°
-  - Odezva lineárních systémů na harmonický vstup je vždy harmonická se stejnou frekvencí
 
-#### Komplexní exponenciála
-- **Vztah se sinusoidou**: x₍ₐ₎(t) = Ae^(jΩt+φ) = Ae^jφe^jΩt
-- **Eulerovy vztahy**:
-  - e^jΩt = cos(Ωt) + j·sin(Ωt)
-  - cos(Ωt) = (e^jΩt + e^-jΩt)/2
-  - sin(Ωt) = (e^jΩt - e^-jΩt)/(2j)
+.
+
+
+.
+
+
+
+
+[//]: # (- **Rovnice**: y&#40;t&#41; = A·sin&#40;Ωt+φ&#41;)
+
+[//]: # (  - A - amplituda)
+
+[//]: # (  - Ω - úhlová frekvence [rad/sec])
+
+[//]: # (  - φ - fáze [rad])
+
+[//]: # (- **Vztahy**:)
+
+[//]: # (  - F = Ω/&#40;2π&#41; - frekvence [Hz])
+
+[//]: # (  - T = 1/F = 2π/Ω - perioda [s])
+
+[//]: # (  - φ = 2πFt₀ = Ωt₀ - kde t₀ je časový posun)
+
+[//]: # (- **Vlastnosti**:)
+
+[//]: # (  - Periodická s periodou T=1/F)
+
+[//]: # (  - Spojité sinusoidy s různou frekvencí jsou vždy různé)
+
+[//]: # (  - S rostoucí frekvencí roste počet oscilací v daném časovém intervalu)
+
+[//]: # (  - Sinusoida a kosinus jsou stejné signály, posunuté o 90°)
+
+[//]: # (  - Odezva lineárních systémů na harmonický vstup je vždy harmonická se stejnou frekvencí)
+
+[//]: # (#### Komplexní exponenciála)
+
+[//]: # (- **Vztah se sinusoidou**: x₍ₐ₎&#40;t&#41; = Ae^&#40;jΩt+φ&#41; = Ae^jφe^jΩt)
+
+[//]: # (- **Eulerovy vztahy**:)
+
+[//]: # (  - e^jΩt = cos&#40;Ωt&#41; + j·sin&#40;Ωt&#41;)
+
+[//]: # (  - cos&#40;Ωt&#41; = &#40;e^jΩt + e^-jΩt&#41;/2)
+
+[//]: # (  - sin&#40;Ωt&#41; = &#40;e^jΩt - e^-jΩt&#41;/&#40;2j&#41;)
+
+#### Exponenciální funkce
+
+.
+
+
+.
+
+
 
 #### Jednotkový skok
 - **Definice**:
@@ -54,13 +88,14 @@
 
 #### Diracův (jednotkový) impuls δ(t)
 - **Definice**: Limitní případ obdélníkové funkce - vysoká, úzká špička s konečnou plochou (=1)
-- **Vlastnosti**:
-  - ∫δ(t)dt = 1
-  - δ(t-t₀) - impuls posunutý do bodu t₀
-  - Filtrační vlastnost: ∫f(t)·δ(t-t₀)dt = f(t₀)
-  - f(t)·δ(t-t₀) = f(t₀)·δ(t-t₀)
-  - f(t)*δ(t) = f(t) - konvoluce s impulsem dává původní funkci
-  - δ⁽ⁿ⁾(t)*f(t) = f⁽ⁿ⁾(t) - n-tá derivace impulsu dává n-tou derivaci funkce
+
+.
+
+
+
+.
+
+
 
 #### Funkce sinc
 - **Definice**: sinc(t) = sin(πt)/(πt)
@@ -69,10 +104,6 @@
   - Prochází nulou pro t = ±1, ±2, ±3, ...
   - Tlumená oscilace
 
-### Kombinace sinusoid
-- **Periodicita součtu**: Součet sinusoid x₁(t) + x₂(t) + ... + xₙ(t) je periodický pokud:
-  - Společná perioda T = NSN(T₁,T₂,...,Tₙ) kde NSN je nejmenší společný násobek
-  - Základní frekvence f₀ = NSD(f₁,f₂,...,fₙ) kde NSD je největší společný dělitel
 
 ## 1.2. VZORKOVÁNÍ A KVANTIZACE
 
@@ -113,12 +144,7 @@
   - **Sigma-delta**: Vysoké rozlišení za nízkou cenu, složitý software
 
 ### Kvantizace
-- **Definice**: Proces, při kterém je vzorkovaný signál s "nekonečnou" přesností konvertován na signál s konečnou přesností
-- **Parametry**:
-  - L = 2^m - počet kvantizačních úrovní (m je počet bitů)
-  - Δ = (xmax-xmin)/L - velikost kvantizačního kroku (rozlišení převodníku)
-  - Index i = round((x-xmin)/Δ)
-  - Kvantizační úroveň: xq = xmin + i·Δ, kde i ∈ {0,1,...,L-1}
+- **Definice**: signál s „nekonečnou“ přesností  konvertován na signál s konečnou přesností (obvykle binární čísla) 
 
 #### Typy kvantizátorů
 - **Unipolární**: Konvertuje hodnoty z intervalu <0, xmax>
@@ -171,37 +197,38 @@
 ### Základní diskrétní signály
 
 #### Jednotkový impuls
-- **Definice**: δ[n] = 1 pro n=0, δ[n] = 0 pro n≠0
-- **Filtrační vlastnost**: ∑x[k]·δ[n-k] = x[n]
-- **Reprezentace signálu**: x[n] = ∑x[k]·δ[n-k]
+
+.
+.
+.
 
 #### Jednotkový skok
-- **Definice**: u[n] = 1 pro n≥0, u[n] = 0 pro n<0
-- **Vztah s impulsem**: u[n] = ∑δ[n-k] pro k=0 až ∞
+
+.
+
+.
 
 #### Lineární funkce (ramp)
-- **Definice**: r[n] = n·u[n] = n pro n≥0, r[n] = 0 pro n<0
-- **Vztah s impulsem**: r[n] = ∑k·δ[n-k] pro k=0 až ∞
+
+.
+
+
+.
+
+
 
 #### Diskrétní pulzní signály
 - **Obdélníkový pulz**: rect(n/N) = 1 pro |n|≤N/2, rect(n/N) = 0 jinak
 - **Trojúhelníkový pulz**: tri(n/N) = 1-|n|/N pro |n|≤N, tri(n/N) = 0 jinak
 - **Diskrétní funkce sinc**: sinc(n/N) = sin(πn/N)/(πn/N), sinc(0) = 1
 
-#### Diskrétní exponenciála
-- **Definice**: x[n] = αⁿ·u[n]
-- **Vlastnosti**: 
-  - Pro reálné α: roste (α>0) nebo klesá (α<0)
-  - Pro komplexní α = re^jθ: x[n] = rⁿ[cos(nθ) + j·sin(nθ)]·u[n]
-
 #### Diskrétní sinusoida
-- **Definice**: x[n] = cos(2πFn) = cos(Ωn)
-  - F - normalizovaná frekvence [cykly/vzorek], F = f/fs
-  - Ω - číslicová úhlová frekvence [rad/vzorek], Ω = 2πF
-- **Vlastnosti**:
-  - Periodická pouze když F je racionální zlomek k/N
-  - Spektrum je periodické - nelze rozlišit frekvence F₀ a F₀+m
-  - Centrální perioda (základní rozsah): -0.5 ≤ F ≤ 0.5
+
+.
+
+
+.
+
 
 ## 1.4 Základní operace s diskrétními signály
 
@@ -215,7 +242,7 @@
 
 #### Decimace signálu
 - **Definice**: y[n] = x[Nn] - každý N-tý vzorek původního signálu
-- **Vlastnost**: Výsledný signál je N-krát kratší
+- **Vlastnost**: Výsledný signál je N-krát kratší odstraněním určitých vzorků
 
 #### Interpolace signálu
 - **Definice**: y[n] = x[n/N] - prodloužení signálu přidáním vzorků
@@ -464,8 +491,35 @@ $$x[n] = \frac{1}{N}\sum_{k=0}^{N-1} X_{DFT}[k]e^{j2\pi nk/N}, \quad n = 0,1,...
 - Zero-padding zvětšuje hustotu vzorků, ale ne skutečné rozlišení!
 
 ### Prosakování spektra (Spectral Leakage)
-- Vzniká při neceločíselném počtu period signálu v okně
-- **Řešení:** Použití vyhlazovacích oken
+Spektrální průsak vzniká, když analyzujeme **konečný úsek** signálu místo nekonečně dlouhého signálu. Energie z jedné frekvence se "rozlije" do sousedních frekvenčních složek.
+
+### 🔍 Proč vzniká?
+
+**Matematická příčina:**
+Když "vystřihneme" konečný úsek z nekonečného signálu, efektivně ho **násobíme obdélníkovým oknem**:
+
+```
+x_observed[n] = x_infinite[n] × w_rectangular[n]
+```
+
+Ve frekvenční oblasti to znamená **konvoluci**:
+```
+X_observed(f) = X_infinite(f) ★ W_rectangular(f)
+```
+
+**Spektrum obdélníkového okna** je **sinc funkce** s charakteristickými vedlejšími laloky, které způsobují průsak.
+
+### 📊 Praktické důsledky
+
+**Problémy:**
+- **Maskování slabých signálů** - silný signál "přebije" slabší v okolních frekvencích
+- **Nepřesná měření** - amplitudy nejsou správné kvůli rozptýlené energii
+- **Falešné frekvence** - objevují se spektrální složky, které původně neexistovaly
+
+**Kdy je to nejhorší:**
+- Při analýze krátkých úseků signálu
+- Když frekvence signálu není "celým násobkem" frekvenčního rozlišení
+- U signálů s velkými rozdíly v amplitudách
 
 ### Vyhlazovací okna
 | Okno      | Hlavní lalok  | Postranní laloky     | Použití                    |
@@ -554,8 +608,6 @@ $$x[n] = \frac{1}{N}\sum_{k=0}^{N-1} X_{DFT}[k]e^{j2\pi nk/N}, \quad n = 0,1,...
 - Pro nestacionární signály použijte STFT nebo wavelety
 
 # 4. Paralelismus na úrovni instrukcí, predikce skoků, paměťová závislost, falešné sdílení a transakční paměť (Intel TSX) – jejich princip a význam pro urychlení sekvenčních a konkurenčních částí algoritmů.
-
-## Paralelismus na úrovni instrukcí (ILP)
 
 Paralelismus na úrovni instrukcí (Instruction-Level Parallelism) je technika, která umožňuje souběžné zpracování instrukcí v rámci jednoho procesorového jádra.
 
@@ -698,7 +750,6 @@ Transakční paměť je hardwarová podpora pro atomické operace nad sdílenou 
 # 5. Srovnání paradigmat prostředků pro multithreading – např. POSIX, C++11/Intel TBB, OpenCL/C++ AMP.
 
 ## POSIX Threads (pthreads)
-
 POSIX Threads je knihovna, která implementuje vlákna podle standardu POSIX. Není objektově orientovaná - pracuje především s funkcemi a je typická pro jazyk C. Dnes je často zastupitelná novějšími řešeními jako C++11 threads.
 
 **Hlavní charakteristiky:**
@@ -711,17 +762,11 @@ POSIX Threads je knihovna, která implementuje vlákna podle standardu POSIX. Ne
 **Příklad vytvoření vlákna:**
 ```c
 #include <pthread.h>
-
-void* thread_function(void* arg) {
-    // Kód prováděný vláknem
-    return NULL;
-}
-
+void* thread_function(void* arg) {...}
 int main() {
     pthread_t thread;
     pthread_create(&thread, NULL, thread_function, NULL);
     pthread_join(thread, NULL);
-    return 0;
 }
 ```
 
@@ -740,16 +785,10 @@ C++11 přinesl standardní threading API přímo do jazyka C++. Toto API nabíz�
 **Příklad vytvoření vlákna:**
 ```cpp
 #include <thread>
-#include <iostream>
-
-void thread_function() {
-    // Kód prováděný vláknem
-}
-
+void thread_function() {...}
 int main() {
     std::thread t(thread_function);
     t.join();
-    return 0;
 }
 ```
 
@@ -768,18 +807,10 @@ TBB je součástí oneAPI od Intelu, která implementuje efektivní SMP algoritm
 
 **Příklad paralelního cyklu:**
 ```cpp
-#include <tbb/parallel_for.h>
-#include <vector>
-
-int main() {
-    std::vector<int> data(1000);
-    
     tbb::parallel_for(0, 1000, [&](int i) {
         data[i] = i * 2;  // Paralelní operace
     });
-    
-    return 0;
-}
+
 ```
 
 ## OpenCL
@@ -834,22 +865,10 @@ SYCL je C++ framework pro psaní kódu pro ASMP (Asymmetric MultiProcessor), pos
 
 **Příklad:**
 ```cpp
-#include <CL/sycl.hpp>
-namespace sycl = cl::sycl;
-
-int main() {
-    sycl::queue queue;
-    const int size = 1024;
-    
-    int* data = sycl::malloc_shared<int>(size, queue);
-    
     queue.parallel_for(sycl::range<1>(size), [=](sycl::id<1> i) {
         data[i] = i * 2;
     }).wait();
-    
-    sycl::free(data, queue);
-    return 0;
-}
+
 ```
 
 ## Srovnání paradigmat
@@ -976,21 +995,9 @@ SYCL je C++ framework pro psaní kódu pro ASMP (Asymmetric Multiprocessor), kte
 Příklad SYCL kódu s data dependency grafem:
 
 ```cpp
-// Definice grafu závislostí dat
-buffer<int> A(range<1>(1024));
-buffer<int> B(range<1>(1024));
-buffer<int> C(range<1>(1024));
-
-queue q;
-q.submit([&](handler& h) {
-  auto a = A.get_access<access::mode::read>(h);
-  auto b = B.get_access<access::mode::read>(h);
-  auto c = C.get_access<access::mode::write>(h);
-  
-  h.parallel_for(range<1>(1024), [=](id<1> i) {
+parallel_for(range<1>(1024), [=](id<1> i) {
     c[i] = a[i] + b[i];
-  });
-});
+};
 ```
 
 ### Distributed MapReduce
@@ -1024,21 +1031,13 @@ Při implementaci distribuované diferenciální evoluce můžeme jednoduše par
 Příklad struktury pro implementaci diferenciální evoluce:
 
 ```cpp
-// Structure of Arrays (lepší pro vektorizaci)
-class Population {
-  std::vector<float> parents;  // nebo np.array()
-  std::vector<float> offsprings;
-  std::vector<float> fitness_parents;
-  std::vector<float> fitness_offsprings;
-  
+// Structure of Arrays (lepší pro vektorizaci) pro parents , offsprings a jejich fitness funkce 
   void init() { /* ... */ }
   void eval_fitness() { /* ... */ }
-  void selection() {
-    // ...
-  }
+  void selection() { /* ... */ }
   void crossbreeding() { /* ... */ }
   void mutate() { /* ... */ }
-};
+
 ```
 
 ## Praktické přístupy a nástroje
@@ -1055,19 +1054,8 @@ Capsule představuje analogii k paketu (obsahuje data a header), ale navíc má 
 
 Pomocí aktivní sítě lze snadno implementovat load redistribution nezávisle na technologii. PerformanceScout je speciální capsule, která udává výkon jednotlivých uzlů a jejich vytížení, komunikační zpoždění apod. Uzel vyšle PerformanceScout capsule do sítě s TTL (Time To Live) a postupně zkoumá uzly v síti. Když TTL dosáhne 0, capsule se vrací zpět k majiteli, který díky ní může zmapovat stav sítě a rozhodnout se, zda proces přemigrovat jinam.
 
-## Závěr
 
-Efektivní přidělování práce v prostředí s distribuovanou pamětí vyžaduje zohlednění mnoha faktorů, včetně:
-
-1. Fyzické a virtuální topologie systému
-2. Granularity dat a komunikačních vzorů
-3. Volby mezi statickým a dynamickým load balancingem
-4. Monitorování výkonu a zatížení uzlů
-5. Mechanismů pro migraci procesů mezi uzly
-
-Výběr konkrétního přístupu závisí na charakteristikách aplikace, hardwarovém vybavení a požadavcích na výkon a odolnost proti chybám. Moderní systémy často kombinují různé přístupy, například distribuovaný MapReduce s dynamickým load balancingem nebo island model pro evoluční algoritmy s mechanismy nepřímé synchronizace.
-
-# 6.1 Vektorizace, SIMD operace a jejich optimalizace
+# 6.1 PPR advanced
 
 ## Základní principy vektorizace a SIMD operací
 - Koncept SIMD (Single Instruction Multiple Data) - stejná instrukce aplikovaná na více datových prvků najednou
@@ -1100,8 +1088,6 @@ Výběr konkrétního přístupu závisí na charakteristikách aplikace, hardwa
 - Faktory ovlivňující efektivitu vektorizace v praxi
 - Metody měření výkonu vektorizovaného kódu
 - Typické výkonnostní rozdíly mezi skalárním a vektorizovaným kódem
-
-# 6.2 Verifikace, synchronizace a distribuce procesů v paralelních a distribuovaných systémech
 
 ## Temporální logika a formální verifikace kódu
 - **Základní principy temporální logiky** - formální dokázání korektnosti programu
@@ -1166,27 +1152,40 @@ Výběr konkrétního přístupu závisí na charakteristikách aplikace, hardwa
 
 # 7. Úpravy digitalizovaného obrazu s využitím histogramu, detekce hran, filtrace.
 
-## 7.1 Úpravy digitalizovaného obrazu s využitím histogramu
+[//]: # (### 7.1.1 Základní operace s obrazovými daty)
 
-### 7.1.1 Základní operace s obrazovými daty
+[//]: # ()
+[//]: # (Při zpracování digitálního obrazu rozlišujeme dva základní typy operací:)
 
-Při zpracování digitálního obrazu rozlišujeme dva základní typy operací:
+[//]: # ()
+[//]: # (**a&#41; Bodové operace**)
 
-**a) Bodové operace**
-- Hodnota výstupního pixelu závisí pouze na hodnotě vstupního pixelu na stejné pozici
-- Obecný zápis: `c(i,j) = f[a(i,j), k]`
-- Příklady bodových operací:
-  - **Sčítání snímků** - používá se pro filtraci šumu průměrováním
-  - **Odčítání snímků** - detekce změn mezi snímky
-  - **Násobení snímků** - jasové korekce
+[//]: # (- Hodnota výstupního pixelu závisí pouze na hodnotě vstupního pixelu na stejné pozici)
 
-**b) Transformace jasové stupnice**
-- Mění rozložení jasových hodnot v obraze
-- Základní typy:
-  - Identická transformace
-  - Inverze
-  - Prahování
-  - Lineární transformace
+[//]: # (- Obecný zápis: `c&#40;i,j&#41; = f[a&#40;i,j&#41;, k]`)
+
+[//]: # (- Příklady bodových operací:)
+
+[//]: # (  - **Sčítání snímků** - používá se pro filtraci šumu průměrováním)
+
+[//]: # (  - **Odčítání snímků** - detekce změn mezi snímky)
+
+[//]: # (  - **Násobení snímků** - jasové korekce)
+
+[//]: # ()
+[//]: # (**b&#41; Transformace jasové stupnice**)
+
+[//]: # (- Mění rozložení jasových hodnot v obraze)
+
+[//]: # (- Základní typy:)
+
+[//]: # (  - Identická transformace)
+
+[//]: # (  - Inverze)
+
+[//]: # (  - Prahování)
+
+[//]: # (  - Lineární transformace)
 
 ### 7.1.2 Histogram obrazu
 
@@ -1323,15 +1322,12 @@ Velikost gradientu: `|∇f(x,y)| = √[(∂f/∂x)² + (∂f/∂y)²]`
 
 # 8. Matematická morfologie, dilatace, eroze, operace otevření a uzavření, užití pro odstranění šumu a zjednodušení obrazové scény.
 
-## 8.1. Základy matematické morfologie
-
 Matematická morfologie je metoda zpracování obrazu, která geometrizuje úlohy zpracování snímků. Vychází z tvarů objektů ve snímku a používá transformace, které tyto tvary zachovávají nebo respektují. Hlavní oblasti aplikace metod matematické morfologie zahrnují:
 
 a) **Předzpracování obrazu** - odstranění šumu, zjednodušení tvarů objektů, zaplavování zálivů, odstraňování zákmitů, vyrovnání hranice objektů, detekce geometrických útvarů.
 
 b) **Skeletizace a ztenčování objektů** - zjednodušení geometrické struktury objektů pro další zpracování, např. popisy objektů číselnými charakteristikami.
 
-### 8.1.1. Teoretické základy
 
 Teorie matematické morfologie je založena na vlastnostech bodových množin:
 - Snímek 2D (IMeukl) je reprezentován ve spojitém euklidovském prostoru E2 bodovou množinou
@@ -1348,31 +1344,48 @@ Pro zápis bodové množiny A používáme množinu dvojic souřadnic (i,j) repr
 - Body pozadí: A^C
 - Bod se souřadnicí (0,0) je označován jako počátek
 
-### 8.1.2. Morfologická transformace
+[//]: # (### 8.1.2. Morfologická transformace)
 
-Nad bodovou množinou je definována morfologická transformace jako relace bodové množiny (IMbin ≈ A) a tzv. strukturního elementu [TEMPLATE], který je tvořen bodovou množinou B (obvykle menší než A).
+[//]: # ()
+[//]: # (Nad bodovou množinou je definována morfologická transformace jako relace bodové množiny &#40;IMbin ≈ A&#41; a tzv. strukturního elementu [TEMPLATE], který je tvořen bodovou množinou B &#40;obvykle menší než A&#41;.)
 
-Transformaci můžeme obecně popsat vztahem:
-TM: A → ? B
+[//]: # ()
+[//]: # (Transformaci můžeme obecně popsat vztahem:)
 
-K transformaci TM(A) existuje také duální transformace TM*(A), pro kterou platí:
-TM*(A) = (TM(A^C))^C
+[//]: # (TM: A → ? B)
 
-### 8.1.3. Strukturní element
+[//]: # ()
+[//]: # (K transformaci TM&#40;A&#41; existuje také duální transformace TM*&#40;A&#41;, pro kterou platí:)
 
-Strukturní element B je bodová množina, která má definovaný počátek elementu [ORIGIN]. Počátek strukturního elementu může také ležet mimo vlastní element B.
+[//]: # (TM*&#40;A&#41; = &#40;TM&#40;A^C&#41;&#41;^C)
 
-Příklady strukturních elementů:
-- B1: 3×3 čtvercové okolí s počátkem uprostřed
-- B2: kříž s počátkem uprostřed
-- B3: horizontální linie s počátkem uprostřed
-- B4: vertikální linie s počátkem uprostřed
-- B5: horizontální linie tří bodů s počátkem vlevo
-- B6: horizontální linie dvou bodů s počátkem vlevo
-- B7: horizontální linie dvou bodů bez levého okolí
-- B8: komplikovanější tvar s počátkem v levém horním rohu
+[//]: # ()
+[//]: # (### 8.1.3. Strukturní element)
 
-Bod ve snímku IM1 ≈ A, který se nachází "pod" počátkem strukturního elementu B, se nazývá **okamžitý bod**, do kterého se pak výsledek morfologické transformace TM(A) přenáší ve výsledném snímku IM2.
+[//]: # ()
+[//]: # (Strukturní element B je bodová množina, která má definovaný počátek elementu [ORIGIN]. Počátek strukturního elementu může také ležet mimo vlastní element B.)
+
+[//]: # ()
+[//]: # (Příklady strukturních elementů:)
+
+[//]: # (- B1: 3×3 čtvercové okolí s počátkem uprostřed)
+
+[//]: # (- B2: kříž s počátkem uprostřed)
+
+[//]: # (- B3: horizontální linie s počátkem uprostřed)
+
+[//]: # (- B4: vertikální linie s počátkem uprostřed)
+
+[//]: # (- B5: horizontální linie tří bodů s počátkem vlevo)
+
+[//]: # (- B6: horizontální linie dvou bodů s počátkem vlevo)
+
+[//]: # (- B7: horizontální linie dvou bodů bez levého okolí)
+
+[//]: # (- B8: komplikovanější tvar s počátkem v levém horním rohu)
+
+[//]: # ()
+[//]: # (Bod ve snímku IM1 ≈ A, který se nachází "pod" počátkem strukturního elementu B, se nazývá **okamžitý bod**, do kterého se pak výsledek morfologické transformace TM&#40;A&#41; přenáší ve výsledném snímku IM2.)
 
 ## 8.2. Základní morfologické transformace
 
@@ -1511,23 +1524,8 @@ Tato transformace odstraňuje drobné výstupky na obvodu oblasti a zaplavuje ma
 - Uzavření vyplňuje malé díry a úzké zálivy
 - N-násobné aplikace umožňují progresivní zjednodušení scény
 
-### 8.7.3. Segmentace obrazu
-- Transformace "HIT and MISS" umožňuje detekci specifických tvarů
-- Detekce hranice je užitečná pro ohraničení objektů
-
-### 8.7.4. Skeletizace
-- Postupné ztenčování objektů až na "kostru" objektu
-- Zachovává topologické vlastnosti objektu při maximálním zjednodušení
-
-Matematická morfologie představuje mocný nástroj pro zpracování obrazu, který je vhodný zejména pro binární obrazy a může být rozšířen i na šedotónové obrazy. Tyto metody jsou výpočetně efektivní a mohou být implementovány jak softwarově, tak hardwarově.
-
-
--------------------------------------------------------------------------------
 
 # 9. Ztenčování a skeletizace
-
-## 9.1. Základní pojmy a principy
-
 Ztenčování (skeletizace) je metoda vytváření čárových obrazů, která nachází významné uplatnění při řešení problémů spojených s rozpoznáváním a strukturální analýzou vizuální scény. Tyto metody jsou zvláště důležité v oblasti "fringe pattern analysis", což je analýza obrazů interferenčních pruhů vzniklých mechanickou či optickou interferencí.
 
 Při řešení úloh rozpoznávání obrazů ("pattern recognition") je důležitým aspektem problém redukce šířky čar nebo obecněji úkol skeletizace, tedy vytvoření čárového obrazu, který zachovává informaci o topologii a struktuře objektů v původním obraze.
@@ -1592,17 +1590,10 @@ Skeletizace a ztenčování nacházejí praktické uplatnění v mnoha oblastech
 3. **Biometrická identifikace** - analýza otisků prstů, žilní kresby
 4. **Počítačové vidění** - reprezentace objektů pro následnou analýzu
 5. **Lékařské zobrazování** - analýza cévních struktur, nervových drah apod.
-
-Skeletizace představuje důležitý krok předzpracování obrazu, který umožňuje redukovat množství dat při zachování podstatných strukturálních informací o objektech v obraze.
-
-
 -------------------------------------------------------------------------------
 
 
 # 10. Segmentace obrazu
-
-## 10.1 Základní princip segmentace
-
 Segmentace obrazu představuje proces rozčlenění snímku (obrazu) na oblasti, které korespondují s objekty reálného světa. Alternativně lze segmentaci chápat jako rozčlenění obrazu na oblasti podle společných definovaných charakteristik, které mohou být i abstraktní vzhledem k reálnému světu. Takové oblasti se vyznačují uniformitou vzhledem k definované vlastnosti, jako je barva, jas, tvar, struktura, poloha těžiště apod.
 
 Předpokládáme, že určené oblasti jsou disjunktní, tedy:
@@ -1762,14 +1753,6 @@ Volba startovacího jasu může být:
 
 Do této kategorie patří metody přímé konstrukce oblastí, které jsou vhodné pro snímky obsahující šum. Princip spočívá v hledání množiny bodů, které mají stejnou vlastnost homogenity.
 
-Postup:
-1. Rozdělení snímku na oblasti Sᵢ tak, že platí IM = ⋃ᵢ Sᵢ, kde Sₖ ∩ Sₗ = ∅
-2. Zavedení kritéria homogenity H(Sᵢ), které klasifikuje homogenitu oblasti
-   - H(Sᵢ) = TRUE, je-li kritérium splněno
-   - H(Sᵢ ∪ Sⱼ) = FALSE pro všechna i ≠ j, kde Sᵢ a Sⱼ jsou sousední oblasti
-
-Pokud není pro některou oblast splněno kritérium homogenity, nastupuje proces štěpení (Splitting) takové oblasti. Po dosažení stavu, kdy všechny oblasti splňují kritérium homogenity, může nastat proces spojování oblastí (Merging) až do stavu, kdy všechny oblasti budou maximální.
-
 ## 10.6 Metoda rozšiřování oblastí
 
 Tato metoda se používá, když mezi dvěma oblastmi S₁ a S₂ s jednoznačně definovanými body vznikne přechodová oblast Sₚ s body, které nelze jednoznačně zařadit.
@@ -1780,18 +1763,6 @@ Princip:
 3. Hledáme minimum této funkce a podle něj přiřazujeme bod do jedné z oblastí
 
 Tento přístup umožňuje efektivně rozšiřovat jasně definované oblasti na úkor přechodových zón.
-
-## 10.7 Praktické využití segmentace
-
-Segmentace obrazu nachází uplatnění v mnoha oblastech, například:
-- Počítačové vidění a rozpoznávání objektů
-- Lékařské zobrazování (MRI, CT, ultrazvuk)
-- Průmyslová kontrola kvality
-- Zpracování satelitních a leteckých snímků
-- Biometrie a systémy zabezpečení
-- Autonomní vozidla a robotika
-
-Volba konkrétní metody segmentace závisí na charakteristikách zpracovávaného obrazu, požadované přesnosti a výpočetní náročnosti.
 
 -------------------------------------------------------------------------------
 
