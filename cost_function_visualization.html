@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cross-entropy cenová funkce</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .formula {
+            font-size: 24px;
+            text-align: center;
+            margin: 20px 0;
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+        }
+        .visualization {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+        .matrix {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .matrix h3 {
+            margin-top: 0;
+            color: #ffeb3b;
+        }
+        .data-table {
+            display: grid;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .example {
+            display: grid;
+            grid-template-columns: auto 1fr 1fr 1fr auto;
+            gap: 10px;
+            align-items: center;
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .example-header {
+            background: rgba(255,193,7,0.3);
+            font-weight: bold;
+        }
+        .class-box {
+            text-align: center;
+            padding: 5px;
+            border-radius: 3px;
+            background: rgba(255,255,255,0.2);
+        }
+        .true { background: rgba(76,175,80,0.7); }
+        .pred { background: rgba(33,150,243,0.7); }
+        .calculation {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .step {
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 5px;
+            border-left: 4px solid #ffeb3b;
+        }
+        .final-result {
+            background: rgba(76,175,80,0.3);
+            border: 2px solid #4caf50;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .interactive {
+            margin: 20px 0;
+            text-align: center;
+        }
+        button {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="text-align: center; margin-bottom: 30px;">🧠 Cross-entropy cenová funkce</h1>
+        
+        <div class="formula">
+            J(Θ) = -1/m Σᵢ₌₁ᵐ Σₖ₌₁ᴷ [yₖ⁽ⁱ⁾ log(hΘ(x⁽ⁱ⁾))ₖ + (1-yₖ⁽ⁱ⁾) log(1-(hΘ(x⁽ⁱ⁾))ₖ)]
+        </div>
+
+        <div class="visualization">
+            <div class="matrix">
+                <h3>📊 Skutečné hodnoty (y)</h3>
+                <div class="data-table" id="true-values">
+                    <div class="example example-header">
+                        <div>Příklad</div>
+                        <div>Pes</div>
+                        <div>Kočka</div>
+                        <div>Pták</div>
+                        <div>Třída</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="matrix">
+                <h3>🎯 Předpovědi sítě (hΘ)</h3>
+                <div class="data-table" id="predictions">
+                    <div class="example example-header">
+                        <div>Příklad</div>
+                        <div>Pes</div>
+                        <div>Kočka</div>
+                        <div>Pták</div>
+                        <div>Max</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="calculation">
+            <h3>🔢 Výpočet cenové funkce</h3>
+            <div id="calculation-steps"></div>
+        </div>
+
+        <div class="final-result">
+            <div>Celková cenová funkce: <span id="final-cost">0.000</span></div>
+        </div>
+
+        <div class="interactive">
+            <button onclick="generateNewData()">🎲 Vygenerovat nová data</button>
+        </div>
+    </div>
+
+    <script>
+        let m = 4; // počet příkladů
+        let K = 3; // počet tříd
+
+        function generateRandomData() {
+            const examples = [];
+            const classes = ['Pes', 'Kočka', 'Pták'];
+            
+            for (let i = 0; i < m; i++) {
+                // Skutečná třída (one-hot encoding)
+                const trueClass = Math.floor(Math.random() * K);
+                const y = [0, 0, 0];
+                y[trueClass] = 1;
+                
+                // Předpovědi sítě (softmax-like probabilities)
+                let predictions = [Math.random(), Math.random(), Math.random()];
+                const sum = predictions.reduce((a, b) => a + b, 0);
+                predictions = predictions.map(p => p / sum);
+                
+                examples.push({
+                    id: i + 1,
+                    y: y,
+                    pred: predictions,
+                    trueClass: trueClass,
+                    className: classes[trueClass]
+                });
+            }
+            return examples;
+        }
+
+        function displayData(examples) {
+            const trueValuesContainer = document.getElementById('true-values');
+            const predictionsContainer = document.getElementById('predictions');
+            
+            // Clear existing data (keep headers)
+            while (trueValuesContainer.children.length > 1) {
+                trueValuesContainer.removeChild(trueValuesContainer.lastChild);
+            }
+            while (predictionsContainer.children.length > 1) {
+                predictionsContainer.removeChild(predictionsContainer.lastChild);
+            }
+
+            examples.forEach((ex, i) => {
+                // True values
+                const trueDiv = document.createElement('div');
+                trueDiv.className = 'example';
+                trueDiv.innerHTML = `
+                    <div>x⁽${i+1}⁾</div>
+                    <div class="class-box ${ex.y[0] ? 'true' : ''}">${ex.y[0]}</div>
+                    <div class="class-box ${ex.y[1] ? 'true' : ''}">${ex.y[1]}</div>
+                    <div class="class-box ${ex.y[2] ? 'true' : ''}">${ex.y[2]}</div>
+                    <div>${ex.className}</div>
+                `;
+                trueValuesContainer.appendChild(trueDiv);
+
+                // Predictions
+                const predDiv = document.createElement('div');
+                predDiv.className = 'example';
+                const maxPred = Math.max(...ex.pred);
+                const maxIndex = ex.pred.indexOf(maxPred);
+                predDiv.innerHTML = `
+                    <div>x⁽${i+1}⁾</div>
+                    <div class="class-box pred">${ex.pred[0].toFixed(3)}</div>
+                    <div class="class-box pred">${ex.pred[1].toFixed(3)}</div>
+                    <div class="class-box pred">${ex.pred[2].toFixed(3)}</div>
+                    <div>${['Pes', 'Kočka', 'Pták'][maxIndex]}</div>
+                `;
+                predictionsContainer.appendChild(predDiv);
+            });
+        }
+
+        function calculateCost(examples) {
+            const calculationSteps = document.getElementById('calculation-steps');
+            calculationSteps.innerHTML = '';
+
+            let totalCost = 0;
+
+            examples.forEach((ex, i) => {
+                let exampleCost = 0;
+                let stepHtml = `<div class="step"><strong>Příklad ${i+1}:</strong><br>`;
+                
+                for (let k = 0; k < K; k++) {
+                    const y_k = ex.y[k];
+                    const h_k = Math.max(ex.pred[k], 1e-15); // prevent log(0)
+                    const term1 = y_k * Math.log(h_k);
+                    const term2 = (1 - y_k) * Math.log(1 - h_k);
+                    const classCost = term1 + term2;
+                    exampleCost += classCost;
+                    
+                    if (y_k === 1) {
+                        stepHtml += `Třída ${k+1}: ${y_k} × log(${h_k.toFixed(3)}) = ${term1.toFixed(4)}<br>`;
+                    }
+                }
+                
+                stepHtml += `Součet = ${exampleCost.toFixed(4)}</div>`;
+                calculationSteps.innerHTML += stepHtml;
+                totalCost += exampleCost;
+            });
+
+            const finalCost = -totalCost / m;
+            
+            calculationSteps.innerHTML += `
+                <div class="step">
+                    <strong>Finální výpočet:</strong><br>
+                    J(Θ) = -1/${m} × (${totalCost.toFixed(4)}) = ${finalCost.toFixed(4)}
+                </div>
+            `;
+
+            document.getElementById('final-cost').textContent = finalCost.toFixed(4);
+        }
+
+        function generateNewData() {
+            const examples = generateRandomData();
+            displayData(examples);
+            calculateCost(examples);
+        }
+
+        // Initialize with random data
+        generateNewData();
+    </script>
+</body>
+</html>
